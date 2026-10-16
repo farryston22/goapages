@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const more = await searchListings(sb, context, 10, false);
     hits = [...hits, ...more.filter((m) => !hits.some((h) => h.id === m.id))].slice(0, 10);
   }
-  const cards = hits.slice(0, 6).map((l) => ({
+  const cards = hits.map((l) => ({
     id: l.id, title: l.title, slug: l.slug, tagline: l.tagline, area: l.area, logo_url: l.logo_url, cover_url: l.cover_url,
     avg_rating: l.avg_rating, review_count: l.review_count, cat: l.cats.split(",")[0] || "",
   }));
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
   if (!key) {
     return NextResponse.json({
       answer: hits.length ? "Here are the best matches on GoaPages for that:" : "I couldn’t find a match on GoaPages for that yet. Try the directory, or a simpler word like “caterer” or “DJ”.",
-      listings: cards, ai: false,
+      listings: cards.slice(0, 6), ai: false,
     });
   }
 
@@ -89,11 +89,14 @@ export async function POST(req: NextRequest) {
   });
   if (!res.ok) {
     console.error("anthropic error", res.status, (await res.text()).slice(0, 500));
-    return NextResponse.json({ answer: "Sorry, the assistant is busy right now. Here are the closest matches on GoaPages:", listings: cards, ai: false });
+    return NextResponse.json({ answer: "Sorry, the assistant is busy right now. Here are the closest matches on GoaPages:", listings: cards.slice(0, 6), ai: false });
   }
   const data = (await res.json()) as { content: { type: string; text?: string }[] };
   const answer = data.content.filter((c) => c.type === "text").map((c) => c.text).join("").trim();
   // only show cards that the answer actually mentions, if it mentions any
-  const mentioned = cards.filter((c) => answer.includes(`/listing/${c.slug}`));
+  const mentioned = cards
+    .filter((c) => answer.includes(`/listing/${c.slug}`))
+    .sort((a, b) => answer.indexOf(`/listing/${a.slug}`) - answer.indexOf(`/listing/${b.slug}`))
+    .slice(0, 4);
   return NextResponse.json({ answer, listings: mentioned.length ? mentioned : cards.slice(0, 3), ai: true });
 }
