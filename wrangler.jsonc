@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "goapages",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "observability": { "enabled": true },
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://ejhxfnxfvszqjydwtwqo.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_djatCQ96I3cPcakjwp606w_oQrm19L6",
+    "NEXT_PUBLIC_SITE_URL": "https://goapages.com"
+  }
+}
