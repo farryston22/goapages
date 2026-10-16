@@ -58,10 +58,10 @@ export async function POST(req: NextRequest) {
 
   const sb = await supabaseServer();
   const context = [...history.filter((m) => m.role === "user").map((m) => m.content), q].join(" ");
-  let hits = await searchListings(sb, q, 8);
-  if (hits.length < 3) {
-    const more = await searchListings(sb, context, 8, false);
-    hits = [...hits, ...more.filter((m) => !hits.some((h) => h.id === m.id))].slice(0, 8);
+  let hits = await searchListings(sb, q, 10);
+  if (hits.length < 6) {
+    const more = await searchListings(sb, context, 10, false);
+    hits = [...hits, ...more.filter((m) => !hits.some((h) => h.id === m.id))].slice(0, 10);
   }
   const cards = hits.slice(0, 6).map((l) => ({
     id: l.id, title: l.title, slug: l.slug, tagline: l.tagline, area: l.area, logo_url: l.logo_url, cover_url: l.cover_url,
