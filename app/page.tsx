@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
+import AskBox from "@/components/AskBox";
 import { supabaseServer } from "@/lib/supabase/server";
 import { categories, categoryCounts, catNames } from "@/lib/data";
 import { LIST_FIELDS, clean, type Listing } from "@/lib/util";
@@ -31,20 +32,9 @@ export default async function Home() {
       <section className="hero" aria-labelledby="hero-h">
         <div style={{ position: "relative", zIndex: 1 }}>
           <span className="badge">UK GOAN COMMUNITY</span>
-          <h1 id="hero-h" style={{ marginTop: 14 }}>Find anything <em>Goan</em> in the UK.</h1>
-          <p className="lead">Caterers, bands, MCs, photographers, cake makers and more — trusted by the community, with real reviews.</p>
-          <form action="/search" role="search">
-            <label htmlFor="q-hero" className="sr">What are you looking for?</label>
-            <input id="q-hero" name="q" type="search" placeholder="e.g. Goan caterer in Hounslow" />
-            <button className="btn btn-yellow" type="submit" aria-label="Search"><Icon name="arrow" /></button>
-          </form>
-          <div className="chips">
-            <Link className="chip" href="/directory?cat=emcee">Wedding MCs</Link>
-            <Link className="chip" href="/directory?cat=caterers">Caterers</Link>
-            <Link className="chip" href="/directory?cat=music-bands">Live bands</Link>
-            <Link className="chip" href="/directory?cat=cakes">Cakes</Link>
-            <Link className="chip" href="/directory?cat=photographers">Photographers</Link>
-          </div>
+          <h1 id="hero-h" style={{ marginTop: 14 }}>Ask anything <em>Goan</em>.</h1>
+          <p className="lead">Our AI assistant searches every Goan business on GoaPages — caterers, bands, MCs, photographers, cakes and more — and tells you who fits, with real community reviews.</p>
+          <AskBox />
         </div>
         <div className="stats" aria-label="GoaPages in numbers">
           <div className="stat"><b>{totals.count ?? "—"}</b><span>Goan businesses listed</span></div>

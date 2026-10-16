@@ -35,3 +35,9 @@ yourself unless he asks.
 ## Never
 - Bring back WordPress code, themes or plugins (the old site was hacked). Data and images only.
 - Put passwords or secret keys in the repo.
+
+## AI assistant (homepage "Ask anything Goan")
+- `components/AskBox.tsx` (chat UI) → `app/api/ask/route.ts` → searches listings (`lib/search.ts`) and asks Claude
+  with the matches plus web search (max 2 searches per question).
+- Needs the Cloudflare secret `ANTHROPIC_API_KEY` (Workers → goapages → Settings → Variables and Secrets).
+  Without it, the box still works as a plain search. Model defaults to `claude-haiku-5-5` (override with `AI_MODEL`).
