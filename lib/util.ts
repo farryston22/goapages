@@ -39,7 +39,7 @@ export function plain(html: string | null | undefined): string {
 /** 'wp:2021/05/x.jpg' → '/img/2021/05/x.webp' (photos moved off WordPress). */
 export function img(u: string | null | undefined): string | null {
   if (!u) return null;
-  if (u.startsWith("wp:")) return "/img/" + u.slice(3).replace(/\.(jpe?g|png|gif|webp|jfif)$/i, ".webp");
+  if (u.startsWith("wp:")) return encodeURI("/img/" + u.slice(3).replace(/\.(jpe?g|png|gif|webp|jfif)$/i, ".webp"));
   return u;
 }
 
