@@ -7,7 +7,6 @@ import ListingCard from "./ListingCard";
 type Card = { id: string; title: string; slug: string; tagline: string | null; area: string | null; logo_url: string | null; cover_url: string | null; avg_rating: number | null; review_count: number; cat: string };
 type Turn = { q: string; answer?: string; listings?: Card[]; error?: string };
 
-const CHIPS = ["Best MC for a Goan wedding", "Goan caterers near Hounslow", "Live band for a dance", "Who makes Goan sweets?", "Photographer for a christening"];
 
 /** Renders plain text with [label](/path) links and line breaks, safely. */
 function Answer({ text }: { text: string }) {
@@ -56,12 +55,9 @@ export default function AskBox() {
     <>
       <form onSubmit={(e) => { e.preventDefault(); ask(q); }} role="search">
         <label htmlFor="q-hero" className="sr">Ask GoaPages</label>
-        <input id="q-hero" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} placeholder="Ask anything — e.g. a Goan caterer in Hounslow" autoComplete="off" />
+        <input id="q-hero" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} placeholder="Ask GoaPages AI…" autoComplete="off" />
         <button className="btn btn-yellow" type="submit" aria-label="Ask" disabled={busy}>{busy ? "…" : <Icon name="arrow" />}</button>
       </form>
-      {turns.length === 0 && (
-        <div className="chips">{CHIPS.map((c) => <button key={c} type="button" className="chip" onClick={() => ask(c)}>{c}</button>)}</div>
-      )}
       {turns.length > 0 && (
         <div ref={out} className="ask-out" aria-live="polite">
           {turns.map((t, i) => (

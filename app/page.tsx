@@ -33,7 +33,7 @@ export default async function Home() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <span className="badge">UK GOAN COMMUNITY</span>
           <h1 id="hero-h" style={{ marginTop: 14 }}>Ask anything <em>Goan</em>.</h1>
-          <p className="lead">Our AI assistant searches every Goan business on GoaPages — caterers, bands, MCs, photographers, cakes and more — and tells you who fits, with real community reviews.</p>
+          <p className="lead">GoaPages AI searches everything for you.</p>
           <AskBox />
         </div>
         <div className="stats" aria-label="GoaPages in numbers">
