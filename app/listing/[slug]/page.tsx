@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
-import { addReview, requestClaim } from "@/app/actions";
+import { addReview, requestClaim, reviewWithEmail } from "@/app/actions";
 import { DAYS, clean, hoursText, img, initials, plain, price, siteHref, socialsList, telHref, waHref, type Listing, type Review } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +115,8 @@ export default async function ListingPage({ params, searchParams }: P) {
             {sp.review === "sent" && <div className="notice ok">Thanks! Your review will appear once it’s been checked.</div>}
             {sp.review === "short" && <div className="notice bad">Please write a little more (at least 10 characters).</div>}
             {sp.review === "error" && <div className="notice bad">Sorry, that didn’t save. Please try again.</div>}
+            {sp.review === "email" && <div className="notice bad">Please enter a valid email address.</div>}
+            {sp.review === "check" && <div className="notice ok"><b>Nearly done — check your email.</b> Tap the link we sent you to confirm it’s really you. Your review is then sent for approval.</div>}
             {reviews.length === 0 && <p style={{ color: "var(--muted)", padding: "10px 0" }}>No reviews yet — be the first.</p>}
             {reviews.slice(0, 8).map((r) => <ReviewItem key={r.id} r={r} />)}
             {reviews.length > 8 && (
@@ -137,7 +139,21 @@ export default async function ListingPage({ params, searchParams }: P) {
                   <div className="field"><label htmlFor="rv-body">Your review</label><textarea id="rv-body" name="body" required minLength={10} maxLength={3000} placeholder="What was it like?" /></div>
                   <button className="btn btn-yellow" type="submit" style={{ alignSelf: "flex-start" }}>Send review</button>
                 </form>
-              ) : <p style={{ marginTop: 12 }}><Link href={`/login?next=/listing/${l.slug}`}>Sign in</Link> to write a review — it only takes an email.</p>}
+              ) : (
+                <form action={reviewWithEmail} className="form" style={{ marginTop: 14 }}>
+                  <input type="hidden" name="listing_id" value={l.id} />
+                  <input type="hidden" name="slug" value={l.slug} />
+                  <div className="row2">
+                    <div className="field"><label htmlFor="rv-name2">Your name</label><input id="rv-name2" name="name" maxLength={60} placeholder="As you’d like it shown" required /></div>
+                    <div className="field"><label htmlFor="rv-email">Your email</label><input id="rv-email" name="email" type="email" required autoComplete="email" placeholder="Never shown publicly" /></div>
+                  </div>
+                  <div className="field"><label htmlFor="rv-rating2">Rating</label>
+                    <select id="rv-rating2" name="rating" defaultValue="5">{[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{"★".repeat(n)} ({n})</option>)}</select></div>
+                  <div className="field"><label htmlFor="rv-body2">Your review</label><textarea id="rv-body2" name="body" required minLength={10} maxLength={2000} placeholder="What was it like?" /></div>
+                  <p className="hint" style={{ fontSize: 13, color: "var(--muted)" }}>We’ll email you a link to confirm it’s you — no password needed. Every review is checked before it appears.</p>
+                  <button className="btn btn-yellow" type="submit" style={{ alignSelf: "flex-start" }}>Send review</button>
+                </form>
+              )}
             </details>
           </section>
         </div>

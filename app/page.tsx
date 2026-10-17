@@ -82,7 +82,7 @@ export default async function Home() {
         <div className="soon">
           <span className="badge" style={{ alignSelf: "flex-start" }}>NEW · COMING SOON</span>
           <h2 style={{ color: "#fff" }}>Goan Marketplace</h2>
-          <p>Buy and sell within the community — sarees, furniture, baby things, home-made sweets and event tickets.</p>
+          <p>Buy and sell within the community — clothes, furniture, baby things, home-made sweets and event tickets.</p>
           <Link href="/marketplace" className="btn btn-yellow" style={{ alignSelf: "flex-start" }}><Icon name="shop" />Take a look</Link>
         </div>
         <div className="soon" style={{ background: "#fff", color: "var(--navy)", border: "1px solid var(--line-2)" }}>

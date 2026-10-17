@@ -1,5 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/supabase/server";
 import { slugify } from "@/lib/util";
@@ -96,4 +97,28 @@ export async function signOut() {
   const { sb } = await currentUser();
   await sb.auth.signOut();
   redirect("/");
+}
+
+/** Signed-out visitors: keep the review, email a sign-in link; the review is posted when they click it. */
+export async function reviewWithEmail(form: FormData) {
+  const slug = String(form.get("slug"));
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  const body = s(form, "body", 2000);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) redirect(`/listing/${slug}?review=email#reviews`);
+  if (!body || body.length < 10) redirect(`/listing/${slug}?review=short#reviews`);
+  const pending = {
+    listing_id: String(form.get("listing_id")), slug,
+    rating: Math.min(5, Math.max(1, Number(form.get("rating")) || 5)),
+    body, name: s(form, "name", 60),
+  };
+  const store = await cookies();
+  store.set("gp_pending_review", JSON.stringify(pending), { httpOnly: true, secure: true, sameSite: "lax", maxAge: 60 * 60, path: "/" });
+  const h = await headers();
+  const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
+  const { sb } = await currentUser();
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(`/listing/${slug}?review=sent#reviews`)}`, data: pending.name ? { name: pending.name } : undefined },
+  });
+  redirect(`/listing/${slug}?review=${error ? "error" : "check"}#reviews`);
 }

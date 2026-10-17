@@ -13,5 +13,23 @@ export async function GET(req: NextRequest) {
   let ok = false;
   if (code) ok = !(await sb.auth.exchangeCodeForSession(code)).error;
   else if (token_hash && type) ok = !(await sb.auth.verifyOtp({ token_hash, type })).error;
-  return NextResponse.redirect(new URL(ok ? next : "/login?err=link", url.origin));
+  if (ok) {
+    const raw = req.cookies.get("gp_pending_review")?.value;
+    if (raw) {
+      try {
+        const p = JSON.parse(raw) as { listing_id: string; rating: number; body: string; name: string | null };
+        const { data: u } = await sb.auth.getUser();
+        if (u.user && p.listing_id && p.body) {
+          const { data: prof } = await sb.from("profiles").select("display_name").eq("id", u.user.id).maybeSingle();
+          await sb.from("reviews").insert({
+            listing_id: p.listing_id, author_id: u.user.id, rating: p.rating, body: p.body, status: "pending",
+            author_name: p.name || prof?.display_name || "GoaPages member",
+          });
+        }
+      } catch { /* ignore bad cookie */ }
+    }
+  }
+  const res = NextResponse.redirect(new URL(ok ? next : "/login?err=link", url.origin));
+  res.cookies.delete("gp_pending_review");
+  return res;
 }
