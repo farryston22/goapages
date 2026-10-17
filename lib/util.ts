@@ -37,8 +37,12 @@ export function plain(html: string | null | undefined): string {
 }
 
 /** 'wp:2021/05/x.jpg' → '/img/2021/05/x.webp' (photos moved off WordPress). */
+// photos referenced by old listings but missing from the WordPress backup
+const MISSING = new Set(["2024/02/MelissaDiasStudio_Logo.jpeg", "2024/02/SerafinoStudioz_logo.jpeg", "2024/02/Viky_Taxi-4.webp", "2024/02/NFCreates_logo.png", "2024/02/Ziabakes-36.webp", "2024/02/Cross_Cross_Cake_6.webp", "2024/02/Viky_Taxi-12.webp", "2024/02/DreamCatchers_logo.jpeg", "2024/02/RoyalMusic_2.png", "2024/02/Cross_Cross_Cake_27.webp", "listing-uploads/cover/2024/02/DjPlacide2.png", "listing-uploads/cover/2024/08/IMG_7043.jpeg", "listing-uploads/logo/2024/02/274986663_669952224457132_2292381209686937716_n-2.webp", "listing-uploads/logo/2024/08/IMG_1582.jpeg"]);
+
 export function img(u: string | null | undefined): string | null {
   if (!u) return null;
+  if (u.startsWith("wp:") && MISSING.has(u.slice(3))) return null;
   if (u.startsWith("wp:")) return encodeURI("/img/" + u.slice(3).replace(/\.(jpe?g|png|gif|webp|jfif)$/i, ".webp"));
   return u;
 }
