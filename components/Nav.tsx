@@ -10,6 +10,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     { href: "/directory", label: "Directory", icon: "dir" },
     { href: "/search", label: "Search", icon: "search" },
     { href: "/events", label: "Events", icon: "cal" },
+    { href: "/obituaries", label: "Obituaries", icon: "heart" },
   ] },
   { title: "Buy, sell & rent", items: [
     { href: "/marketplace", label: "Marketplace", icon: "shop" },

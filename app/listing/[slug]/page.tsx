@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
 import { addReview, requestClaim, reviewWithEmail } from "@/app/actions";
+import { kindConfig } from "@/lib/kinds";
 import { DAYS, clean, hoursText, img, initials, plain, price, siteHref, socialsList, telHref, waHref, type Listing, type Review } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,14 @@ export default async function ListingPage({ params, searchParams }: P) {
   const today = DAYS[(new Date().getDay() + 6) % 7];
   const isOwner = user && l.owner_id === user.id;
   const canEdit = isOwner || role === "admin";
+  const cfg = kindConfig(l.kind);
+  const isBiz = l.kind === "business";
+  const isObit = l.kind === "obituary";
+  const attrs = (l.attributes ?? {}) as Record<string, unknown>;
+  const fmt = (t: string | undefined, v: string) => t === "date" && /^\d{4}-\d{2}-\d{2}$/.test(v)
+    ? new Date(v + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" }) : v;
+  const details = (cfg?.fields ?? []).filter((f) => attrs[f.key] != null && String(attrs[f.key]).trim())
+    .map((f) => ({ label: f.label.replace(/ \(venues\)$/, ""), value: fmt(f.type, String(attrs[f.key])), url: f.type === "url" }));
 
   const jsonLd = {
     "@context": "https://schema.org", "@type": "LocalBusiness", name: title, description: clean(l.tagline) || undefined,
@@ -75,7 +84,7 @@ export default async function ListingPage({ params, searchParams }: P) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      {isBiz && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />}
       {l.status !== "published" && (
         <div className="notice">This listing is <b>{l.status}</b> — only you{role === "admin" ? " (admin)" : ""} can see it.{l.status === "pending" ? " It goes live once it’s approved." : ""}</div>
       )}
@@ -85,6 +94,7 @@ export default async function ListingPage({ params, searchParams }: P) {
           <div className="ld-logo" style={logo ? { backgroundImage: `url("${logo}")` } : undefined} aria-hidden="true">{!logo && initials(title)}</div>
           <div className="ld-title">
             <h1>{title}</h1>
+            {isObit && <p style={{ color: "var(--muted-2)" }}>In loving memory{attrs.born || attrs.died ? " · " + [attrs.born, attrs.died].map((d) => d ? String(d).slice(0, 4) : "").join(" – ") : ""}{attrs.from ? " · " + String(attrs.from) : ""}</p>}
             {l.tagline && <p style={{ color: "var(--muted-2)" }}>{clean(l.tagline)}</p>}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
               {l.review_count > 0 && <span className="stars">★ {Number(l.avg_rating ?? 0).toFixed(1)} <span style={{ color: "var(--muted)", fontWeight: 500 }}>· {l.review_count} reviews</span></span>}
@@ -107,10 +117,20 @@ export default async function ListingPage({ params, searchParams }: P) {
       <div className="ld-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {desc && <section className="card pad" aria-labelledby="about-h"><h2 id="about-h" style={{ marginBottom: 10 }}>About</h2><p className="desc">{desc}</p></section>}
+          {details.length > 0 && (
+            <section className="card pad" aria-labelledby="det-h">
+              <h2 id="det-h" style={{ marginBottom: 10 }}>{isObit ? "Funeral and family" : "Details"}</h2>
+              <dl className="details">
+                {details.map((d) => (
+                  <div key={d.label}><dt>{d.label}</dt><dd>{d.url ? <a href={siteHref(d.value)} target="_blank" rel="noopener">Open link</a> : d.value}</dd></div>
+                ))}
+              </dl>
+            </section>
+          )}
           {yt && <section className="card pad"><h2 style={{ marginBottom: 10 }}>Video</h2><div style={{ aspectRatio: "16/9", borderRadius: 14, overflow: "hidden" }}><iframe src={yt} title={`${title} video`} style={{ width: "100%", height: "100%", border: 0 }} allow="encrypted-media; picture-in-picture" allowFullScreen loading="lazy" /></div></section>}
           {photos.length > 0 && <section className="card pad"><h2 style={{ marginBottom: 10 }}>Photos</h2><div className="gallery">{photos.map((p) => /* eslint-disable-next-line @next/next/no-img-element */ <img key={p} src={p} alt="" loading="lazy" />)}</div></section>}
 
-          <section className="card pad" id="reviews" aria-labelledby="rev-h">
+          {isBiz && <section className="card pad" id="reviews" aria-labelledby="rev-h">
             <div className="sec-head" style={{ marginBottom: 4 }}><h2 id="rev-h">Reviews {reviews.length ? `(${reviews.length})` : ""}</h2></div>
             {sp.review === "sent" && <div className="notice ok">Thanks! Your review will appear once it’s been checked.</div>}
             {sp.review === "short" && <div className="notice bad">Please write a little more (at least 10 characters).</div>}
@@ -155,7 +175,7 @@ export default async function ListingPage({ params, searchParams }: P) {
                 </form>
               )}
             </details>
-          </section>
+          </section>}
         </div>
 
         <aside style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -177,7 +197,7 @@ export default async function ListingPage({ params, searchParams }: P) {
             </section>
           )}
 
-          {!l.claimed && !isOwner && (
+          {isBiz && !l.claimed && !isOwner && (
             <section className="card pad">
               <h3>Is this your business?</h3>
               <p style={{ color: "var(--muted)", fontSize: 14, margin: "6px 0 12px" }}>Claim it to update details, add photos and reply to customers. Free.</p>

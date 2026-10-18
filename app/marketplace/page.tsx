@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import ComingSoon from "@/components/ComingSoon";
+import KindList from "@/components/KindList";
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Goan Marketplace" };
 export default function Page() {
-  return <ComingSoon icon="shop" title="Goan Marketplace" lead="Buy and sell within the UK Goan community — like Facebook Marketplace, but just for us, and checked for scams."
-    cats={["Clothes & jewellery", "Home & furniture", "Baby & kids", "Electronics", "Cars", "Home-made sweets", "Event tickets", "Free to a good home"]}
-    points={["Post an item in a minute from your phone, with photos and a price.", "Message sellers safely without sharing your number.", "Every new post is checked before it goes live, so no spam or scams."]} />;
+  return <KindList kinds={["item"]} icon="shop" title="Goan Marketplace" lead="Buy, sell and give away within the UK Goan community. Every post is checked before it goes live."
+    cta={[{ href: "/post?kind=item", label: "Sell something" }]} empty="Nothing for sale yet — be the first to post an item." />;
 }

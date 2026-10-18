@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/supabase/server";
 import { slugify } from "@/lib/util";
+import { kindConfig } from "@/lib/kinds";
 
 const s = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max) || null;
 
@@ -37,8 +38,14 @@ export async function saveListing(form: FormData) {
   if (!user) redirect("/login?next=/post");
   const id = s(form, "id");
   const title = s(form, "title", 120);
-  if (!title) redirect(`/post?err=title${id ? "&id=" + id : ""}`);
-  const kind = (s(form, "kind") ?? "business") as string;
+  if (!title) redirect(`/post?err=title${id ? "&id=" + id : "&kind=" + (s(form, "kind") ?? "")}`);
+  const cfg = kindConfig(s(form, "kind")) ?? kindConfig("business")!;
+  const kind = cfg.kind;
+  const attributes: Record<string, string> = {};
+  cfg.fields.forEach((f) => {
+    const v = s(form, "a_" + f.key, f.type === "textarea" ? 2000 : 300);
+    if (v) attributes[f.key] = v;
+  });
   const priceRaw = s(form, "price", 12);
   const hours: Record<string, string> = {};
   DAY.forEach((d) => {
@@ -62,18 +69,25 @@ export async function saveListing(form: FormData) {
     price_period: s(form, "price_period", 20),
     logo_url: s(form, "logo_url", 500),
     cover_url: s(form, "cover_url", 500),
+    attributes,
   };
   const catId = Number(form.get("category_id")) || null;
   let listingId = id;
   if (id) {
+    // keep any older attributes (e.g. imported from WordPress) that this form doesn't edit
+    const { data: prev } = await sb.from("listings").select("attributes").eq("id", id).maybeSingle();
+    const kept = { ...((prev?.attributes ?? {}) as Record<string, unknown>) };
+    cfg.fields.forEach((f) => delete kept[f.key]);
+    row.attributes = { ...kept, ...attributes };
     const { error } = await sb.from("listings").update(row).eq("id", id);
     if (error) redirect(`/post?id=${id}&err=save`);
   } else {
     row.slug = `${slugify(title)}-${Math.random().toString(36).slice(2, 6)}`;
     row.status = role === "admin" ? "published" : "pending";
     row.owner_id = user.id;
+    if (cfg.expiresDays) row.expires_at = new Date(Date.now() + cfg.expiresDays * 864e5).toISOString();
     const { data, error } = await sb.from("listings").insert(row).select("id").single();
-    if (error || !data) redirect("/post?err=save");
+    if (error || !data) redirect(`/post?err=save&kind=${kind}`);
     listingId = data.id;
   }
   if (catId && listingId) {
