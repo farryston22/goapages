@@ -2,6 +2,7 @@ import Link from "next/link";
 import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
 import AskBox from "@/components/AskBox";
+import Follow from "@/components/Follow";
 import { supabaseServer } from "@/lib/supabase/server";
 import { categories, categoryCounts, catNames } from "@/lib/data";
 import { LIST_FIELDS, clean, type Listing } from "@/lib/util";
@@ -74,6 +75,8 @@ export default async function Home() {
         </div>
         <div className="grid3">{L(loved).map((l) => <ListingCard key={l.id} l={l} cat={names.get(l.id)} />)}</div>
       </section>
+
+      <Follow />
 
       <section className="split" aria-label="Marketplace and property">
         <div className="soon">

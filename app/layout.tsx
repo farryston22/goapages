@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar, TabBar } from "@/components/Nav";
 import Icon from "@/components/Icon";
 import AskLink from "@/components/AskLink";
+import { SocialIcons } from "@/components/Follow";
 import { currentUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -54,6 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Link href="/about">About & contact</Link>
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>
+              <SocialIcons />
             </footer>
           </div>
         </div>

@@ -231,3 +231,35 @@ p { margin: 0; }
 .ask-dots span:nth-child(2) { animation-delay: .2s; } .ask-dots span:nth-child(3) { animation-delay: .4s; }
 @keyframes blink { 0%, 100% { opacity: .2 } 50% { opacity: 1 } }
 @media (prefers-reduced-motion: reduce) { .ask-dots span { animation: none; } }
+
+/* ---------- Follow GoaPages (Instagram + YouTube) ---------- */
+.follow { background: var(--navy); border-radius: 24px; padding: 28px; color: #fff; position: relative; overflow: hidden; }
+.follow::before { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -110px; border-radius: 50%; background: var(--yellow); opacity: .12; }
+.follow-head { position: relative; max-width: 560px; }
+.follow-head h2 { color: #fff; margin: 8px 0 4px; }
+.follow-head p { color: #CDD3E2; margin: 0; }
+.follow-live { display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); color: var(--navy); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+.follow-live i { width: 8px; height: 8px; border-radius: 50%; background: #E1306C; animation: fpulse 1.6s ease-out infinite; }
+.follow-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+.fcard { display: flex; align-items: center; gap: 14px; background: #fff; color: var(--navy); text-decoration: none; border-radius: 18px; padding: 16px; transition: transform .2s ease, box-shadow .2s ease; }
+.fcard:hover, .fcard:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+.fcard:active { transform: scale(.98); }
+.fcard-icon { flex: none; width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; color: #fff; transition: transform .3s ease; }
+.fcard:hover .fcard-icon { transform: rotate(-8deg) scale(1.08); }
+.fcard-ig .fcard-icon { background: linear-gradient(45deg, #F58529, #DD2A7B 50%, #8134AF); }
+.fcard-yt .fcard-icon { background: #FF0000; }
+.fcard-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.fcard-body b { font-family: var(--font-head); font-size: 16px; }
+.fcard-body span { font-weight: 600; font-size: 14px; }
+.fcard-body small { color: #5F6780; font-size: 12px; margin-top: 2px; }
+.fcard-cta { flex: none; display: inline-flex; align-items: center; gap: 4px; background: var(--navy); color: var(--yellow); font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 10px; transition: gap .2s ease; }
+.fcard:hover .fcard-cta { gap: 8px; }
+.soc { display: inline-flex; gap: 10px; margin-left: auto; }
+.soc a { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: #fff; transition: transform .2s ease, background .2s ease; }
+.soc a:hover { transform: translateY(-2px); background: var(--yellow); color: var(--navy); }
+@keyframes fpulse { 0% { box-shadow: 0 0 0 0 rgba(225,48,108,.7); } 100% { box-shadow: 0 0 0 10px rgba(225,48,108,0); } }
+@media (max-width: 760px) {
+  .follow { padding: 20px; border-radius: 20px; }
+  .follow-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .follow-live i { animation: none; } .fcard, .fcard-icon, .soc a { transition: none; } }
