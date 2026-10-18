@@ -23,7 +23,7 @@ export default async function Home() {
     sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
     sb.from("ads").select("*").in("placement", ["home_banner", "home_card"]),
   ]);
-  const topCats = cats.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, 12);
+  const topCats = cats.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, 6);
   const banner = ((ads.data ?? []) as Ad[]).find((a) => a.placement === "home_banner");
   const L = (x: { data: unknown }) => (x.data ?? []) as Listing[];
 
