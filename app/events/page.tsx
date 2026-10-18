@@ -8,7 +8,7 @@ import { clean } from "@/lib/util";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Goan events in the UK" };
 
-type SP = { when?: string; area?: string };
+type SP = { when?: string; area?: string; type?: string };
 
 function addDays(iso: string, n: number) {
   const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10);
@@ -18,6 +18,20 @@ export default async function Events({ searchParams }: { searchParams: Promise<S
   const sp = await searchParams;
   const sb = await supabaseServer();
   const all = await upcomingEvents(sb, 200);
+
+  // event types (categories of kind "event", e.g. Tiatr)
+  const { data: lcs } = all.length
+    ? await sb.from("listing_categories").select("listing_id, categories!inner(slug,name,kind)").in("listing_id", all.map((l) => l.id)).eq("categories.kind", "event")
+    : { data: [] as unknown[] };
+  const typesOf = new Map<string, Set<string>>();
+  const typeNames = new Map<string, string>();
+  for (const r of (lcs ?? []) as unknown as { listing_id: string; categories: { slug: string; name: string } | null }[]) {
+    if (!r.categories) continue;
+    typeNames.set(r.categories.slug, clean(r.categories.name));
+    if (!typesOf.has(r.listing_id)) typesOf.set(r.listing_id, new Set());
+    typesOf.get(r.listing_id)!.add(r.categories.slug);
+  }
+  const types = Array.from(typeNames.entries()).sort((a, b) => a[1].localeCompare(b[1]));
   const today = ukToday();
 
   // date filter options: this week, this month, then each month that has events
@@ -39,13 +53,16 @@ export default async function Events({ searchParams }: { searchParams: Promise<S
 
   const areaOf = (a: string | null) => clean(a ?? "").trim();
   const areas = Array.from(new Set(all.map((l) => areaOf(l.area)).filter(Boolean))).sort();
-  const rows = all.filter((l) => inRange(eventDate(l)) && (!sp.area || areaOf(l.area).toLowerCase() === sp.area.toLowerCase()));
+  const rows = all.filter((l) => inRange(eventDate(l))
+    && (!sp.area || areaOf(l.area).toLowerCase() === sp.area.toLowerCase())
+    && (!sp.type || typesOf.get(l.id)?.has(sp.type)));
 
   const href = (p: SP) => {
     const q = new URLSearchParams();
     const next = { ...sp, ...p };
     if (next.when) q.set("when", next.when);
     if (next.area) q.set("area", next.area);
+    if (next.type) q.set("type", next.type);
     const s = q.toString();
     return "/events" + (s ? "?" + s : "");
   };
@@ -66,6 +83,15 @@ export default async function Events({ searchParams }: { searchParams: Promise<S
           {chip("Next 7 days", sp.when === "week", href({ when: "week" }))}
           {months.map((m) => chip(monthLabel(m), sp.when === m, href({ when: m })))}
         </div>
+        {types.length > 0 && (
+          <>
+            <span className="lbl">Type</span>
+            <div className="chips">
+              {chip("All types", !sp.type, href({ type: undefined }))}
+              {types.map(([slug, name]) => chip(name, sp.type === slug, href({ type: slug })))}
+            </div>
+          </>
+        )}
         {areas.length > 1 && (
           <>
             <span className="lbl">Where</span>

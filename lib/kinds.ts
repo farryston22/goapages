@@ -46,6 +46,7 @@ export const KINDS: KindConfig[] = [
     kind: "event", label: "Event", blurb: "Dance, feast, fundraiser, concert…", icon: "cal",
     titleLabel: "Event name", titlePlaceholder: "e.g. Goan Christmas Dance 2026",
     aboutLabel: "About the event", aboutPlaceholder: "Bands, food, dress code, who it’s for…",
+    categoryKind: "event",
     price: { label: "Ticket price (£)" },
     fields: [
       { key: "date", label: "Date", type: "date" },
