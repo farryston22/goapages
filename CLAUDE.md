@@ -20,7 +20,7 @@ yourself unless he asks.
 ## Where things are
 - `app/page.tsx` home · `app/directory` · `app/search` · `app/listing/[slug]` · `app/events`
 - `app/post` add/edit listing · `app/my` member area · `app/admin` approvals (admin only)
-- `app/marketplace`, `app/homes` — "coming soon" pages (phase 2)
+- `app/marketplace` (items), `app/homes` (rooms + property), `app/obituaries` — lists of approved posts (`components/KindList.tsx`)
 - `app/actions.ts` member server actions · `app/admin/actions.ts` admin actions
 - `lib/supabase/*` clients · `lib/util.ts` helpers · `components/*`
 
@@ -41,3 +41,12 @@ yourself unless he asks.
   with the matches plus web search (max 2 searches per question).
 - Needs the Cloudflare secret `ANTHROPIC_API_KEY` (Workers → goapages → Settings → Variables and Secrets).
   Without it, the box still works as a plain search. Model defaults to `claude-haiku-5-5` (override with `AI_MODEL`).
+
+## Add a listing (one smart form)
+- `/post` with no `kind` shows the type picker + auto-fill box; `/post?kind=<kind>` shows the form for that type.
+- Types and their extra fields live in `lib/kinds.ts` (business, event, item, room, property, obituary). Extra
+  answers are saved in `listings.attributes` (jsonb) and shown in the listing page "Details" card. To add a field or
+  a type, edit `lib/kinds.ts` only (a new type also needs a `listing_kind` enum value).
+- Auto-fill: `components/AutoFill.tsx` → `app/api/autofill/route.ts` (signed-in only, uses `ANTHROPIC_API_KEY`) →
+  sessionStorage → `components/Prefill.tsx` fills the form. Nothing is saved until the member submits; posts still
+  need approval. Items/rooms/property get `expires_at` (see `expiresDays`). Reviews and claims are business-only.
