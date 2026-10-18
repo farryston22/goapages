@@ -48,8 +48,6 @@ p { margin: 0; }
 
 .main { min-width: 0; display: flex; flex-direction: column; }
 .top { background: #fff; border-bottom: 1px solid var(--line); padding: 12px 28px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 20; }
-.top form { flex: 1; max-width: 560px; display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 4px 4px 4px 14px; }
-.top input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; padding: 8px 0; color: var(--navy); outline: none; }
 .top .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
 .top .mlogo { display: none; }
 .content { padding: 28px; display: flex; flex-direction: column; gap: 28px; max-width: 1320px; width: 100%; }
@@ -64,7 +62,6 @@ p { margin: 0; }
   .top { padding: 10px 16px; background: var(--navy); border-bottom: 0; flex-wrap: wrap; }
   .top .mlogo { display: block; }
   .top .mlogo img { width: 150px; height: auto; }
-  .top form { order: 3; flex-basis: 100%; max-width: none; background: #fff; }
   .top .right .btn-ghost { color: #fff; border-color: var(--navy-line); }
   .content { padding: 18px 16px; gap: 22px; }
   .foot { padding: 20px 16px 100px; }

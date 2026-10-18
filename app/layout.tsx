@@ -36,12 +36,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="GoaPages" width={150} height={47} />
               </Link>
-              <form action="/search" role="search">
-                <Icon name="search" />
-                <label htmlFor="q-top" className="sr">Search GoaPages</label>
-                <input id="q-top" name="q" type="search" placeholder="Search caterers, bands, MCs, areas…" />
-                <button className="btn btn-primary btn-sm" type="submit">Search</button>
-              </form>
               <div className="right">
                 {isAdmin && <Link href="/admin" className="btn btn-ghost btn-sm">Admin</Link>}
                 {signedIn
