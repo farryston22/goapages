@@ -68,6 +68,13 @@ export default async function Home() {
         </div>
       </section>
 
+      {L(events).length > 0 && (
+        <section aria-labelledby="ev-h">
+          <div className="sec-head"><div><h2 id="ev-h">Events</h2><p>What’s on for the Goan community.</p></div><Link href="/events">All events →</Link></div>
+          <div className="grid3">{L(events).map((l) => <ListingCard key={l.id} l={l} />)}</div>
+        </section>
+      )}
+
       <section aria-labelledby="loved-h">
         <div className="sec-head">
           <div><h2 id="loved-h">Most loved</h2><p>The businesses with the most community reviews.</p></div>
@@ -92,13 +99,6 @@ export default async function Home() {
           <Link href="/homes" className="btn btn-primary" style={{ alignSelf: "flex-start" }}><Icon name="key" />Take a look</Link>
         </div>
       </section>
-
-      {L(events).length > 0 && (
-        <section aria-labelledby="ev-h">
-          <div className="sec-head"><div><h2 id="ev-h">Events</h2><p>What’s on for the Goan community.</p></div><Link href="/events">All events →</Link></div>
-          <div className="grid3">{L(events).map((l) => <ListingCard key={l.id} l={l} />)}</div>
-        </section>
-      )}
 
       <section aria-labelledby="new-h">
         <div className="sec-head">
