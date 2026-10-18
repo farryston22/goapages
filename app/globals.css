@@ -316,3 +316,14 @@ p { margin: 0; }
 @keyframes sfade { from { opacity: 0; } to { opacity: 1; } }
 @media (min-width: 961px) { .sheet-back { display: none; } }
 @media (prefers-reduced-motion: reduce) { .sheet, .sheet-back { animation: none; } }
+
+/* ---------- Events: date tile + filters ---------- */
+.lcard .logo.cal { background: var(--navy); border-color: var(--navy); color: #fff; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: 0; width: 52px; height: 56px; line-height: 1; }
+.lcard .logo.cal small { font-size: 11px; font-weight: 700; color: var(--yellow); letter-spacing: .04em; }
+.lcard .logo.cal b { font-family: var(--font-head); font-size: 22px; font-weight: 800; margin-top: 3px; }
+.lcard .meta .when { color: var(--navy) !important; font-weight: 700; font-size: 13px; }
+.filters { display: flex; flex-direction: column; gap: 10px; }
+.filters .chips { margin-top: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.filters .chips::-webkit-scrollbar { display: none; }
+.filters .chip { flex: none; }
+.filters .lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }

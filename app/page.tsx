@@ -2,6 +2,7 @@ import Link from "next/link";
 import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
 import AskBox from "@/components/AskBox";
+import { upcomingEvents } from "@/lib/events";
 import Follow from "@/components/Follow";
 import { supabaseServer } from "@/lib/supabase/server";
 import { categories, categoryCounts, catNames } from "@/lib/data";
@@ -16,7 +17,7 @@ export default async function Home() {
   const [loved, fresh, events, cats, counts, names, totals, ads] = await Promise.all([
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("review_count", { ascending: false }).order("avg_rating", { ascending: false }).limit(6),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("created_at", { ascending: false }).limit(6),
-    sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "event").order("created_at", { ascending: false }).limit(3),
+    upcomingEvents(sb, 3),
     categories(),
     categoryCounts(),
     catNames(),
@@ -68,10 +69,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {L(events).length > 0 && (
+      {events.length > 0 && (
         <section aria-labelledby="ev-h">
           <div className="sec-head"><div><h2 id="ev-h">Events</h2><p>What’s on for the Goan community.</p></div><Link href="/events">All events →</Link></div>
-          <div className="grid3">{L(events).map((l) => <ListingCard key={l.id} l={l} />)}</div>
+          <div className="grid3">{events.map((l) => <ListingCard key={l.id} l={l} />)}</div>
         </section>
       )}
 
