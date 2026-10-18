@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </footer>
           </div>
         </div>
-        <TabBar />
+        <TabBar isAdmin={isAdmin} signedIn={signedIn} />
       </body>
     </html>
   );
