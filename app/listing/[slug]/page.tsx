@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: P): Promise<Metadata> {
   const when = l.kind === "event" && a.date ? new Date(a.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + (a.start_time ? " · " + a.start_time : "") : "";
   const d = [when, a.venue, clean(l.tagline) || plain(l.description).slice(0, 155)].filter(Boolean).join(" · ").slice(0, 200);
   // a purpose-made 1200x630 share card wins; otherwise the cover/flyer
-  const share = a.share_image || img(l.cover_url) || img(l.logo_url);
+  const share = a.share_image || img(l.cover_url) || img(l.logo_url) || "/og-goapages.jpg";
   const url = `/listing/${l.slug}`;
   return {
     title: clean(l.title), description: d, alternates: { canonical: url },

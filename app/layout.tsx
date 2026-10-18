@@ -11,7 +11,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://goapages.com"),
   title: { default: "GoaPages — the UK Goan community directory", template: "%s · GoaPages" },
   description: "Find Goan businesses, caterers, bands, MCs, photographers and more across the UK. Buy, sell and rent within the Goan community.",
-  openGraph: { siteName: "GoaPages", type: "website", locale: "en_GB" },
+  openGraph: {
+    siteName: "GoaPages", type: "website", locale: "en_GB",
+    title: "GoaPages — find anything Goan in the UK",
+    description: "Goan caterers, bands, DJs, photographers, cakes, events, marketplace and rooms to rent across the UK. Free to list.",
+    images: [{ url: "/og-goapages.jpg", width: 1200, height: 630, alt: "GoaPages — find anything Goan in the UK" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/og-goapages.jpg"] },
 };
 export const viewport: Viewport = { themeColor: "#242C41", width: "device-width", initialScale: 1 };
 
