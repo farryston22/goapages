@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
+import Share from "@/components/Share";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
 import { addReview, requestClaim, reviewWithEmail } from "@/app/actions";
 import { kindConfig } from "@/lib/kinds";
@@ -19,9 +20,17 @@ async function load(slug: string) {
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const l = await load((await params).slug);
   if (!l) return { title: "Not found" };
-  const d = clean(l.tagline) || plain(l.description).slice(0, 155);
-  const cover = img(l.cover_url) || img(l.logo_url);
-  return { title: clean(l.title), description: d, openGraph: { title: clean(l.title), description: d, images: cover ? [cover] : undefined } };
+  const a = (l.attributes ?? {}) as Record<string, string>;
+  const when = l.kind === "event" && a.date ? new Date(a.date + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) + (a.start_time ? " · " + a.start_time : "") : "";
+  const d = [when, a.venue, clean(l.tagline) || plain(l.description).slice(0, 155)].filter(Boolean).join(" · ").slice(0, 200);
+  // a purpose-made 1200x630 share card wins; otherwise the cover/flyer
+  const share = a.share_image || img(l.cover_url) || img(l.logo_url);
+  const url = `/listing/${l.slug}`;
+  return {
+    title: clean(l.title), description: d, alternates: { canonical: url },
+    openGraph: { type: "website", url, siteName: "GoaPages", title: clean(l.title), description: d, images: share ? [{ url: share, alt: clean(l.title), ...(a.share_image ? { width: 1200, height: 630 } : {}) }] : undefined },
+    twitter: { card: share ? "summary_large_image" : "summary", title: clean(l.title), description: d, images: share ? [share] : undefined },
+  };
 }
 
 function ytEmbed(u: string | null) {
@@ -111,6 +120,7 @@ export default async function ListingPage({ params, searchParams }: P) {
         {(l.whatsapp || l.phone) && <a className="btn btn-yellow" href={waHref(l.whatsapp || l.phone!)} target="_blank" rel="noopener"><Icon name="chat" />WhatsApp</a>}
         {l.email && <a className="btn btn-ghost" href={`mailto:${l.email}`}><Icon name="mail" />Email</a>}
         {l.website && <a className="btn btn-ghost" href={siteHref(l.website)} target="_blank" rel="noopener"><Icon name="globe" />Website</a>}
+        <Share title={title} path={`/listing/${l.slug}`} />
         {canEdit && <Link className="btn btn-ghost" href={`/post?id=${l.id}`}>Edit listing</Link>}
       </div>
 
