@@ -43,3 +43,18 @@ export function SocialIcons() {
     </span>
   );
 }
+
+// Slim one-line strip for the top of the homepage.
+export function FollowStrip() {
+  return (
+    <div className="fstrip" aria-label="Follow GoaPages">
+      <span className="fstrip-t">Follow us</span>
+      <a className="fstrip-b ig" href={SOCIAL.instagram.url} target="_blank" rel="noopener noreferrer">
+        <span className="ic"><Icon name="instagram" size={16} /></span>Instagram
+      </a>
+      <a className="fstrip-b yt" href={SOCIAL.youtube.url} target="_blank" rel="noopener noreferrer">
+        <span className="ic"><Icon name="youtube" size={16} /></span>YouTube
+      </a>
+    </div>
+  );
+}

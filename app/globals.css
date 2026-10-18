@@ -327,3 +327,10 @@ p { margin: 0; }
 .filters .chips::-webkit-scrollbar { display: none; }
 .filters .chip { flex: none; }
 .filters .lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.fstrip { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 8px 14px; }
+.fstrip-t { font-weight: 700; font-size: 14px; margin-right: auto; }
+.fstrip-b { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; color: var(--navy); font-weight: 700; font-size: 13px; padding: 5px 12px 5px 5px; border-radius: 999px; background: var(--bg); min-height: 36px; transition: transform .15s ease; }
+.fstrip-b:hover { transform: translateY(-1px); color: var(--navy); }
+.fstrip-b .ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; }
+.fstrip-b.ig .ic { background: linear-gradient(45deg, #F58529, #DD2A7B 50%, #8134AF); }
+.fstrip-b.yt .ic { background: #FF0000; }
