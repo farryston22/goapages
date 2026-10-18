@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Icon from "./Icon";
 import ListingCard from "./ListingCard";
@@ -51,9 +51,14 @@ export default function AskBox() {
     setBusy(false);
   }
 
+  // Arriving from the header "Ask AI" button (/#ask): put the cursor in the box.
+  useEffect(() => {
+    if (window.location.hash === "#ask") document.getElementById("q-hero")?.focus();
+  }, []);
+
   return (
     <>
-      <form onSubmit={(e) => { e.preventDefault(); ask(q); }} role="search">
+      <form id="ask" onSubmit={(e) => { e.preventDefault(); ask(q); }} role="search">
         <label htmlFor="q-hero" className="sr">Ask GoaPages</label>
         <input id="q-hero" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} placeholder="Ask GoaPages AI…" autoComplete="off" />
         <button className="btn btn-yellow" type="submit" aria-label="Ask" disabled={busy}>{busy ? "…" : <Icon name="arrow" />}</button>

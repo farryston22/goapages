@@ -63,6 +63,7 @@ p { margin: 0; }
   .top .mlogo { display: block; }
   .top .mlogo img { width: 150px; height: auto; }
   .top .right .btn-ghost { color: #fff; border-color: var(--navy-line); }
+  .top .right .btn-ask { background: #FDC703; color: var(--navy); border-color: #FDC703; }
   .content { padding: 18px 16px; gap: 22px; }
   .foot { padding: 20px 16px 100px; }
   .tabbar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #fff; border-top: 1px solid var(--line); padding: 6px 6px calc(10px + env(safe-area-inset-bottom)); }
@@ -81,6 +82,7 @@ p { margin: 0; }
 .btn-ghost:hover { background: var(--bg); }
 .btn-ok { background: var(--ok); color: #fff; }
 .btn-bad { background: #fff; color: var(--bad); border-color: #F0C9C6; }
+.btn-ask { background: var(--navy); color: #FDC703; border-color: var(--navy); }
 .btn-sm { min-height: 36px; padding: 6px 12px; font-size: 13px; border-radius: 10px; }
 .icon-btn { width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 10px; }
 

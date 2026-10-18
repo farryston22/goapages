@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { Sidebar, TabBar } from "@/components/Nav";
 import Icon from "@/components/Icon";
+import AskLink from "@/components/AskLink";
 import { currentUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <img src="/logo.png" alt="GoaPages" width={150} height={47} />
               </Link>
               <div className="right">
+                <AskLink />
                 {isAdmin && <Link href="/admin" className="btn btn-ghost btn-sm">Admin</Link>}
                 {signedIn
                   ? <Link href="/my" className="btn btn-ghost btn-sm">My account</Link>
