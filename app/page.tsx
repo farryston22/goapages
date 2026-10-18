@@ -12,7 +12,7 @@ type Ad = { id: number; placement: string; advertiser: string | null; title: str
 
 export default async function Home() {
   const sb = await supabaseServer();
-  const [loved, fresh, events, cats, counts, names, totals, revs, ads] = await Promise.all([
+  const [loved, fresh, events, cats, counts, names, totals, ads] = await Promise.all([
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("review_count", { ascending: false }).order("avg_rating", { ascending: false }).limit(6),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("created_at", { ascending: false }).limit(6),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "event").order("created_at", { ascending: false }).limit(3),
@@ -20,7 +20,6 @@ export default async function Home() {
     categoryCounts(),
     catNames(),
     sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
-    sb.from("reviews").select("id", { count: "exact", head: true }).eq("status", "published"),
     sb.from("ads").select("*").in("placement", ["home_banner", "home_card"]),
   ]);
   const topCats = cats.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, 12);
@@ -38,9 +37,7 @@ export default async function Home() {
         </div>
         <div className="stats" aria-label="GoaPages in numbers">
           <div className="stat"><b>{totals.count ?? "—"}</b><span>Goan businesses listed</span></div>
-          <div className="stat"><b>{revs.count ?? "—"}</b><span>community reviews</span></div>
           <div className="stat"><b>{topCats.length ? cats.filter((c) => (counts.get(c.id) ?? 0) > 0).length : "—"}</b><span>categories</span></div>
-          <div className="stat"><b>Free</b><span>to list your business</span></div>
         </div>
       </section>
 
