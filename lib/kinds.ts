@@ -54,14 +54,6 @@ export const KINDS: KindConfig[] = [
     titleLabel: "Business name", titlePlaceholder: "e.g. Rosario’s Goan Catering",
     aboutLabel: "About your business", aboutPlaceholder: "What you do, experience, what’s included…",
     categoryKind: "business",
-    prices: [
-      { cats: G.venue, label: "Hire from (£)", periods: ["hour", "event"] },
-      { cats: ["caterers"], label: "Price from (£)", periods: ["person", "event"] },
-      { cats: ["bakers", "cakes"], label: "Prices from (£)" },
-      { cats: G.eventServices, label: "Starting price (£)", periods: ["hour", "event"] },
-      { cats: G.trades, label: "Starting price (£)", periods: ["hour", "once"] },
-      { cats: G.transport, label: "Starting price (£)" },
-    ],
     fields: [
       { key: "capacity", label: "Capacity", type: "number", placeholder: "e.g. 250 guests", cats: G.venue },
       { key: "venue_catering", label: "Catering", type: "select", options: ["In-house catering only", "Outside caterers allowed", "Either"], cats: G.venue },

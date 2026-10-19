@@ -55,7 +55,7 @@ yourself unless he asks.
 - Types and their extra fields live in `lib/kinds.ts` (business, event, item, room, property, obituary). Extra
   answers are saved in `listings.attributes` (jsonb) and shown in the listing page "Details" card. To add a field or
   a type, edit `lib/kinds.ts` only (a new type also needs a `listing_kind` enum value).
-- Business boxes depend on the category: fields have `cats` (category slugs), the price box comes from `prices[]`,
+- Business boxes depend on the category: fields have `cats` (category slugs); businesses have no price box (owner asked to remove it),
   opening hours from `hoursCats`; the groups are `G` at the top of `lib/kinds.ts`. `components/CategoryFields.tsx`
   switches boxes as the category changes (hidden boxes are disabled fieldsets, so they aren't saved). A new
   business category gets no extra boxes until its slug is added to a group.

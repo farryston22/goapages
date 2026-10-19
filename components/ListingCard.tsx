@@ -29,7 +29,7 @@ export default function ListingCard({ l, cat }: { l: Partial<Listing> & { title:
           <div className="row" style={{ fontSize: 13, color: "var(--muted)" }}>
             {l.review_count ? <span className="stars">★ {Number(l.avg_rating ?? 0).toFixed(1)} <span style={{ color: "var(--muted)", fontWeight: 500 }}>({l.review_count})</span></span> : null}
             {cat ? <span className="badge soft">{cat}</span> : null}
-            {l.price_pence != null ? <b>{price(l.price_pence, l.price_period)}</b> : null}
+            {l.price_pence != null && l.kind !== "business" ? <b>{price(l.price_pence, l.price_period)}</b> : null}
             {l.area ? <span>{clean(l.area)}</span> : null}
           </div>
         </div>
