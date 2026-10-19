@@ -205,6 +205,8 @@ p { margin: 0; }
 .qitem .info { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 4px; }
 .qitem .info p { color: var(--muted-2); font-size: 14px; }
 .qitem .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.qitem .reject-form { display: flex; gap: 6px; flex-wrap: wrap; }
+.qitem .reject-form input { flex: 1 1 200px; min-width: 0; font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid #DDE2EC; border-radius: 8px; background: #fff; color: var(--ink, #242C41); }
 .statgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .statgrid .card b { font-family: var(--font-head); font-size: 28px; display: block; }
 .statgrid .card span { color: var(--muted); font-size: 13px; }

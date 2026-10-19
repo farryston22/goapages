@@ -8,11 +8,11 @@ import { clean, plain } from "@/lib/util";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 
-function Btns({ action, id, yes = "published", yesLabel = "Approve", no = "rejected" }: { action: (f: FormData) => Promise<void>; id: string | number; yes?: string; yesLabel?: string; no?: string }) {
+function Btns({ action, id, yes = "published", yesLabel = "Approve", no = "rejected", reason = false }: { action: (f: FormData) => Promise<void>; id: string | number; yes?: string; yesLabel?: string; no?: string; reason?: boolean }) {
   return (
     <div className="acts">
       <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="status" value={yes} /><button className="btn btn-ok btn-sm" type="submit">✓ {yesLabel}</button></form>
-      <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="status" value={no} /><button className="btn btn-bad btn-sm" type="submit">✕ Reject</button></form>
+      <form action={action} className="reject-form"><input type="hidden" name="id" value={id} /><input type="hidden" name="status" value={no} />{reason && <input name="reason" maxLength={500} placeholder="Reason (optional, emailed to them)" aria-label="Reason for rejecting (optional, emailed to them)" />}<button className="btn btn-bad btn-sm" type="submit">✕ Reject</button></form>
     </div>
   );
 }
@@ -60,7 +60,7 @@ export default async function Admin() {
               <span style={{ fontSize: 13, color: "var(--muted)" }}>{l.kind} · {l.area || "no area"} · {l.phone || l.email || l.website || "no contact"}{l.owner_id && owners.get(l.owner_id) ? ` · by ${owners.get(l.owner_id)}` : ""}</span>
               <p>{clean(l.tagline) || plain(l.description).slice(0, 220)}</p>
             </div>
-            <Btns action={moderateListing} id={l.id} />
+            <Btns action={moderateListing} id={l.id} reason />
           </div>
         ))}
       </section>
@@ -88,7 +88,7 @@ export default async function Admin() {
               <span style={{ fontWeight: 700 }}>{owners.get((c as unknown as { user_id: string }).user_id) ?? "Member"} wants {c.listings ? <Link href={`/listing/${c.listings.slug}`}>{clean(c.listings.title)}</Link> : "?"}</span>
               {c.note && <p>“{c.note}”</p>}
             </div>
-            <Btns action={moderateClaim} id={c.id} yes="approved" yesLabel="Give them the listing" />
+            <Btns action={moderateClaim} id={c.id} yes="approved" yesLabel="Give them the listing" reason />
           </div>
         ))}
       </section>

@@ -36,6 +36,14 @@ yourself unless he asks.
 - Bring back WordPress code, themes or plugins (the old site was hacked). Data and images only.
 - Put passwords or secret keys in the repo.
 
+## Notification emails
+- `lib/email.ts` sends (via Resend) when an admin decides something a member submitted: listing approved / rejected
+  and claim approved / rejected. Called from `app/admin/actions.ts`; only fires when the item was `pending`. The
+  reject buttons have an optional "Reason" box that goes into the email and `moderation_log`.
+- Needs the Cloudflare secret `RESEND_API_KEY`; sender defaults to `GoaPages <contact@fnunes.co.uk>` (override with
+  `EMAIL_FROM`). Without the key nothing is sent and moderation still works. Sign-in emails are Supabase's own
+  (templates in `supabase/email-templates`; links use `token_hash`, not `ConfirmationURL`).
+
 ## AI assistant (homepage "Ask anything Goan")
 - `components/AskBox.tsx` (chat UI) → `app/api/ask/route.ts` → searches listings (`lib/search.ts`) and asks Claude
   with the matches plus web search (max 2 searches per question).
