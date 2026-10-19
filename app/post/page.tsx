@@ -8,13 +8,32 @@ import Icon from "@/components/Icon";
 import { saveListing } from "@/app/actions";
 import { currentUser, SUPABASE_URL } from "@/lib/supabase/server";
 import { categories } from "@/lib/data";
-import { KINDS, kindConfig, type Field, type KindConfig } from "@/lib/kinds";
+import { KINDS, kindConfig, type Field, type KindConfig, type Price } from "@/lib/kinds";
+import CategoryFields from "@/components/CategoryFields";
 import { DAYS, clean, plain, socialsList, type Listing } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Add a listing" };
 
 const PERIOD: Record<string, string> = { once: "One-off", hour: "Hour", event: "Event", person: "Person", week: "Week", month: "Month" };
+
+/** Wraps a box that only shows for some categories (see components/CategoryFields). */
+function CatDep({ cats, slug, children }: { cats?: string[]; slug: string; children: React.ReactNode }) {
+  if (!cats) return <div className="always" style={{ display: "contents" }}>{children}</div>;
+  return <fieldset className="catdep" data-cats={cats.join(" ")} disabled={!cats.includes(slug)}>{children}</fieldset>;
+}
+
+function PriceBox({ p, id, l }: { p: Price; id: string; l: Partial<Listing> }) {
+  return (
+    <>
+      <div className="field"><label htmlFor={id}>{p.label}</label><input id={id} name="price" inputMode="decimal" defaultValue={l.price_pence != null ? (l.price_pence / 100).toString() : ""} placeholder="0 = free" /></div>
+      {p.periods && (
+        <div className="field"><label htmlFor={id + "_per"}>Per</label>
+          <select id={id + "_per"} name="price_period" defaultValue={l.price_period ?? ""}><option value="">—</option>{p.periods.map((x) => <option key={x} value={x}>{PERIOD[x]}</option>)}</select></div>
+      )}
+    </>
+  );
+}
 
 function FieldInput({ f, value }: { f: Field; value: string }) {
   const id = "a_" + f.key;
@@ -79,6 +98,9 @@ export default async function Post({ searchParams }: { searchParams: Promise<{ i
   const photo = sp.photo && sp.photo.startsWith(SUPABASE_URL + "/storage/") ? sp.photo : null;
   if (photo && !sp.id) { if (cfg.kind === "event" || cfg.kind === "business") l.cover_url = photo; else l.logo_url = photo; }
   const business = cfg.kind === "business" || cfg.kind === "event";
+  const catSlug = cats.find((c) => c.id === catId)?.slug ?? "";
+  const on = (c?: string[]) => !c || c.includes(catSlug);
+  const detailsOn = !!cfg.price || !!cfg.prices?.some((p) => on(p.cats)) || cfg.fields.some((f) => on(f.cats));
 
   return (
     <div style={{ maxWidth: 860, width: "100%", display: "flex", flexDirection: "column", gap: 20 }}>
@@ -91,6 +113,7 @@ export default async function Post({ searchParams }: { searchParams: Promise<{ i
       {sp.err === "title" && <div className="notice bad">Please fill in the {cfg.titleLabel.toLowerCase()}.</div>}
       {sp.err === "save" && <div className="notice bad">Sorry, that didn’t save. Please try again.</div>}
       <form action={saveListing} className="form">
+        {cfg.prices && <CategoryFields />}
         {sp.prefill && <Prefill />}
         {sp.id && <input type="hidden" name="id" value={sp.id} />}
         <input type="hidden" name="kind" value={cfg.kind} />
@@ -98,26 +121,25 @@ export default async function Post({ searchParams }: { searchParams: Promise<{ i
           <h2>The basics</h2>
           {cats.length > 0 && (
             <div className="field"><label htmlFor="category_id">Category</label>
-              <select id="category_id" name="category_id" defaultValue={catId ?? ""}><option value="">Choose…</option>{cats.map((c) => <option key={c.id} value={c.id}>{clean(c.name)}</option>)}</select></div>
+              <select id="category_id" name="category_id" defaultValue={catId ?? ""}><option value="">Choose…</option>{cats.map((c) => <option key={c.id} value={c.id} data-slug={c.slug}>{clean(c.name)}</option>)}</select></div>
           )}
           <div className="field"><label htmlFor="title">{cfg.titleLabel} *</label><input id="title" name="title" required maxLength={120} defaultValue={clean(l.title)} placeholder={cfg.titlePlaceholder} /></div>
           {business && <div className="field"><label htmlFor="tagline">Short description</label><input id="tagline" name="tagline" maxLength={160} defaultValue={clean(l.tagline)} placeholder="One line — what it is" /></div>}
           <div className="field"><label htmlFor="description">{cfg.aboutLabel}</label><textarea id="description" name="description" maxLength={8000} defaultValue={plain(l.description)} placeholder={cfg.aboutPlaceholder} /></div>
         </section>
 
-        {(cfg.fields.length > 0 || cfg.price) && (
-          <section className="card pad form">
+        {(cfg.fields.length > 0 || cfg.price || cfg.prices) && (
+          <section className="card pad form" data-catsection hidden={!detailsOn}>
             <h2>Details</h2>
             <div className="row2">
-              {cfg.price && (
-                <div className="field"><label htmlFor="price">{cfg.price.label}</label><input id="price" name="price" inputMode="decimal" defaultValue={l.price_pence != null ? (l.price_pence / 100).toString() : ""} placeholder="0 = free" /></div>
-              )}
-              {cfg.price?.periods && (
-                <div className="field"><label htmlFor="price_period">Per</label>
-                  <select id="price_period" name="price_period" defaultValue={l.price_period ?? ""}><option value="">—</option>{cfg.price.periods.map((p) => <option key={p} value={p}>{PERIOD[p]}</option>)}</select></div>
-              )}
+              {cfg.price && <PriceBox p={cfg.price} id="price" l={l} />}
+              {cfg.prices?.map((p, i) => (
+                <CatDep key={i} cats={p.cats} slug={catSlug}><PriceBox p={p} id={"price_" + i} l={l} /></CatDep>
+              ))}
               {cfg.kind === "room" && <input type="hidden" name="price_period" value="month" />}
-              {cfg.fields.map((f) => <FieldInput key={f.key} f={f} value={attrs[f.key] != null ? String(attrs[f.key]) : ""} />)}
+              {cfg.fields.map((f) => (
+                <CatDep key={f.key} cats={f.cats} slug={catSlug}><FieldInput f={f} value={attrs[f.key] != null ? String(attrs[f.key]) : ""} /></CatDep>
+              ))}
             </div>
           </section>
         )}
@@ -153,12 +175,14 @@ export default async function Post({ searchParams }: { searchParams: Promise<{ i
               </div>
               <div className="field"><label htmlFor="video_url">YouTube video link</label><input id="video_url" name="video_url" defaultValue={l.video_url ?? ""} /></div>
               {cfg.hours && (
+                <CatDep cats={cfg.hoursCats} slug={catSlug}>
                 <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Opening hours <span className="hint" style={{ fontWeight: 400 }}>— e.g. 09:00-17:00, closed, open (24h) or by (appointment)</span></legend>
                   <div className="grid4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))" }}>
                     {DAYS.map((d) => <div className="field" key={d}><label htmlFor={"h_" + d}>{d}</label><input id={"h_" + d} name={"h_" + d} defaultValue={h[d] ?? ""} /></div>)}
                   </div>
                 </fieldset>
+                </CatDep>
               )}
             </div>
           </details>

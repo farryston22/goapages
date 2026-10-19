@@ -336,3 +336,8 @@ p { margin: 0; }
 .fstrip-b .ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; }
 .fstrip-b.ig .ic { background: linear-gradient(45deg, #F58529, #DD2A7B 50%, #8134AF); }
 .fstrip-b.yt .ic { background: #FF0000; }
+
+/* Add-listing form: boxes that depend on the category (components/CategoryFields.tsx) */
+fieldset.catdep { display: contents; border: 0; padding: 0; margin: 0; }
+fieldset.catdep[disabled] { display: none; }
+[data-catsection][hidden] { display: none; }

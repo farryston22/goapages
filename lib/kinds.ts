@@ -9,7 +9,10 @@ export type Field = {
   type?: "text" | "date" | "time" | "number" | "url" | "select" | "textarea";
   options?: string[];
   placeholder?: string;
+  cats?: string[];        // only for these category slugs (business). None = every category.
 };
+
+export type Price = { label: string; periods?: string[]; cats?: string[] };
 
 export type KindConfig = {
   kind: Kind;
@@ -21,12 +24,28 @@ export type KindConfig = {
   aboutLabel: string;
   aboutPlaceholder: string;
   categoryKind?: string;  // categories.kind to choose from (none = no category)
-  price?: { label: string; periods?: string[] };
+  price?: Price;
+  prices?: Price[];       // price box that depends on the category (business); one per category group
+  hoursCats?: string[];   // opening hours only for these categories (default: all, if hours is true)
   fields: Field[];
   hours?: boolean;        // opening hours
   socials?: boolean;      // social links + video
   expiresDays?: number;   // auto-expire posts (marketplace, rooms)
   listPath: string;       // where published posts appear
+};
+
+// Business category groups (categories.slug) — decide which extra boxes the form shows.
+const G = {
+  venue: ["venue"],
+  foodPlaces: ["restaurant", "cafe", "food-dining"],
+  shops: ["bakers", "cakes", "caterers", "fish-monger", "gifts-favours", "books-magazine"],
+  eventServices: ["bar-services", "beauty-hair-makeup", "choirs", "choreographer", "decorators", "emcee", "event-planner",
+    "light-sound", "music-dj", "music-bands", "photographers", "videographer"],
+  trades: ["domestic-cleaning", "electrician", "painters", "car-valeting-detailing", "tailor", "it-support", "web-developer",
+    "printing-graphic-designing"],
+  transport: ["car-rental", "taxi", "courier-cargo-service"],
+  professional: ["legal-financial", "mortgages-advisor", "investment", "visa-immigration-citizenship", "travel-agency"],
+  other: ["press-and-media", "services", "sports"],
 };
 
 export const KINDS: KindConfig[] = [
@@ -35,12 +54,27 @@ export const KINDS: KindConfig[] = [
     titleLabel: "Business name", titlePlaceholder: "e.g. Rosario’s Goan Catering",
     aboutLabel: "About your business", aboutPlaceholder: "What you do, experience, what’s included…",
     categoryKind: "business",
-    price: { label: "Starting price (£)", periods: ["once", "hour", "event", "person"] },
-    fields: [
-      { key: "capacity", label: "Capacity (venues)", type: "number", placeholder: "e.g. 250 guests" },
-      { key: "parking", label: "Parking (venues)", type: "select", options: ["Free parking", "Paid parking", "No parking"] },
+    prices: [
+      { cats: G.venue, label: "Hire from (£)", periods: ["hour", "event"] },
+      { cats: ["caterers"], label: "Price from (£)", periods: ["person", "event"] },
+      { cats: ["bakers", "cakes"], label: "Prices from (£)" },
+      { cats: G.eventServices, label: "Starting price (£)", periods: ["hour", "event"] },
+      { cats: G.trades, label: "Starting price (£)", periods: ["hour", "once"] },
+      { cats: G.transport, label: "Starting price (£)" },
     ],
-    hours: true, socials: true, listPath: "/directory",
+    fields: [
+      { key: "capacity", label: "Capacity", type: "number", placeholder: "e.g. 250 guests", cats: G.venue },
+      { key: "venue_catering", label: "Catering", type: "select", options: ["In-house catering only", "Outside caterers allowed", "Either"], cats: G.venue },
+      { key: "venue_bar", label: "Bar", type: "select", options: ["Licensed bar", "Bring your own drinks", "No alcohol"], cats: G.venue },
+      { key: "dining", label: "Eat in or takeaway", type: "select", options: ["Eat in", "Takeaway", "Eat in & takeaway", "Eat in, takeaway & delivery"], cats: G.foodPlaces },
+      { key: "min_guests", label: "Minimum guests", type: "number", placeholder: "e.g. 30", cats: ["caterers"] },
+      { key: "order_delivery", label: "Orders", type: "select", options: ["Collection only", "Delivery only", "Collection or delivery"], cats: ["bakers", "cakes", "fish-monger", "gifts-favours"] },
+      { key: "parking", label: "Parking", type: "select", options: ["Free parking", "Paid parking", "No parking"], cats: [...G.venue, ...G.foodPlaces] },
+      { key: "areas_covered", label: "Areas covered", placeholder: "e.g. London & South East, will travel", cats: [...G.eventServices, ...G.trades, ...G.transport, "caterers", "bakers", "cakes"] },
+      { key: "consultation", label: "First consultation", type: "select", options: ["Free", "Paid"], cats: G.professional },
+    ],
+    hours: true, hoursCats: [...G.venue, ...G.foodPlaces, ...G.shops, ...G.trades, ...G.transport, ...G.professional, ...G.other],
+    socials: true, listPath: "/directory",
   },
   {
     kind: "event", label: "Event", blurb: "Dance, feast, fundraiser, concert…", icon: "cal",
