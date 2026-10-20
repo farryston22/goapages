@@ -50,7 +50,7 @@ export default function Icon({ name, size = 18, stroke = 2 }: { name: string; si
 
 export function catIcon(slug: string): string {
   if (/photo/.test(slug)) return "camera";
-  if (/video/.test(slug)) return "video";
+  if (/video|led|screen/.test(slug)) return "video";
   if (/music|dj|band|choir|sound/.test(slug)) return "music";
   if (/emcee|press|media/.test(slug)) return "mic";
   if (/cake|baker/.test(slug)) return "cake";
