@@ -126,8 +126,8 @@ export default async function ListingPage({ params, searchParams }: P) {
 
       <div className="ld-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {l.kind === "event" && cover && (
-            <section className="card pad" aria-label="Event flyer">
+          {(l.kind === "event" || attrs.flyer === true) && cover && (
+            <section className="card pad" aria-label="Flyer">
               <a href={cover} target="_blank" rel="noopener" className="flyer-link" title="Open the full-size flyer">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="flyer" src={cover} alt={`${title} flyer`} />
