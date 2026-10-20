@@ -25,8 +25,10 @@ yourself unless he asks.
 - `lib/supabase/*` clients · `lib/util.ts` helpers · `components/*`
 
 ## Everyday jobs
-- **Add a listing for the owner**: insert into `listings` (status `published` only if he said so) and
-  `listing_categories`. Slug must be unique.
+- **Add a listing for the owner**: insert into `listings` and `listing_categories`. Slug must be unique.
+  **When Farryston himself asks you to add something (business, event, item…), publish it straight away**
+  (status `published`, log `approved` in `moderation_log`) — don't ask him to approve it again. Posts from
+  members through the site still wait for his approval.
 - **Approve/reject**: set `listings.status` / `reviews.status`; add a row to `moderation_log` (actor `claude`).
 - **Ads**: insert into `ads` (placement `home_banner` shows on the homepage).
 - **Check before any change**: `npm run build`. Push to `main` deploys.
