@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
+import MiniList from "@/components/MiniList";
 import AskBox from "@/components/AskBox";
 import { upcomingEvents } from "@/lib/events";
 import { FollowStrip } from "@/components/Follow";
@@ -14,7 +15,8 @@ type Ad = { id: number; placement: string; advertiser: string | null; title: str
 
 export default async function Home() {
   const sb = await supabaseServer();
-  const [loved, fresh, events, cats, counts, names, totals, ads] = await Promise.all([
+  const live = `expires_at.is.null,expires_at.gt.${new Date().toISOString()}`;
+  const [loved, fresh, events, cats, counts, names, totals, ads, items, homes] = await Promise.all([
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("review_count", { ascending: false }).order("avg_rating", { ascending: false }).limit(6),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("created_at", { ascending: false }).limit(6),
     upcomingEvents(sb, 3),
@@ -23,6 +25,8 @@ export default async function Home() {
     catNames(),
     sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
     sb.from("ads").select("*").in("placement", ["home_banner", "home_card"]),
+    sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "item").or(live).order("created_at", { ascending: false }).limit(2),
+    sb.from("listings").select(LIST_FIELDS).eq("status", "published").in("kind", ["room", "property"]).or(live).order("created_at", { ascending: false }).limit(2),
   ]);
   const topCats = cats.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, 6);
   const banner = ((ads.data ?? []) as Ad[]).find((a) => a.placement === "home_banner");
@@ -82,21 +86,30 @@ export default async function Home() {
           <div><h2 id="loved-h">Most loved</h2><p>The businesses with the most community reviews.</p></div>
           <Link href="/directory?sort=reviews">See all →</Link>
         </div>
-        <div className="grid3">{L(loved).map((l) => <ListingCard key={l.id} l={l} cat={names.get(l.id)} />)}</div>
+        <div className="grid3 phone2">{L(loved).map((l) => <ListingCard key={l.id} l={l} cat={names.get(l.id)} />)}</div>
+        <Link href="/directory?sort=reviews" className="btn btn-ghost phone-only more-btn">See more loved businesses →</Link>
       </section>
 
       <section className="split" aria-label="Marketplace and property">
         <div className="soon">
-          <span className="badge" style={{ alignSelf: "flex-start" }}>NEW · COMING SOON</span>
+          <span className="badge" style={{ alignSelf: "flex-start" }}>NEW</span>
           <h2 style={{ color: "#fff" }}>Goan Marketplace</h2>
           <p>Buy and sell within the community — clothes, furniture, baby things, home-made sweets and event tickets.</p>
-          <Link href="/marketplace" className="btn btn-yellow" style={{ alignSelf: "flex-start" }}><Icon name="shop" />Take a look</Link>
+          <MiniList rows={L(items)} dark />
+          <div className="soon-actions">
+            <Link href="/marketplace" className="btn btn-yellow"><Icon name="shop" />See all</Link>
+            <Link href="/post?kind=item" className="btn btn-ghost on-dark">+ Sell something</Link>
+          </div>
         </div>
         <div className="soon" style={{ background: "#fff", color: "var(--navy)", border: "1px solid var(--line-2)" }}>
-          <span className="badge navy" style={{ alignSelf: "flex-start" }}>NEW · COMING SOON</span>
+          <span className="badge navy" style={{ alignSelf: "flex-start" }}>NEW</span>
           <h2>Property & rooms</h2>
           <p style={{ color: "var(--muted)" }}>Rooms to rent, flats to let and homes for sale — from Goans, for Goans.</p>
-          <Link href="/homes" className="btn btn-primary" style={{ alignSelf: "flex-start" }}><Icon name="key" />Take a look</Link>
+          <MiniList rows={L(homes)} />
+          <div className="soon-actions">
+            <Link href="/homes" className="btn btn-primary"><Icon name="key" />See all</Link>
+            <Link href="/post" className="btn btn-ghost">+ Add a room or property</Link>
+          </div>
         </div>
       </section>
 
