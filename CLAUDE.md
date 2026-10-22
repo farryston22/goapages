@@ -5,7 +5,7 @@ on the site: contact@fnunes.co.uk. Every new listing and review needs his approv
 yourself unless he asks.
 
 ## Stack
-- Next.js 15 (App Router, server components + server actions), deployed to **Cloudflare Workers** with
+- Next.js 16 (App Router, server components + server actions), deployed to **Cloudflare Workers** with
   `@opennextjs/cloudflare`. Cloudflare Workers Builds deploys automatically on every push to `main`.
 - **Supabase** (Postgres + Auth + Storage) — see `supabase/README.md`. Auth is email magic link.
 - Public config is in `wrangler.jsonc` `vars` and `.env.production` (publishable key only — never commit secret keys).
@@ -32,6 +32,8 @@ yourself unless he asks.
 - **Approve/reject**: set `listings.status` / `reviews.status`; add a row to `moderation_log` (actor `claude`).
 - **Ads**: insert into `ads` (placement `home_banner` shows on the homepage).
 - **Check before any change**: `npm run build`. Push to `main` deploys.
+  The real deploy runs `opennextjs-cloudflare build`; it refuses Next.js versions past their 2-year support window
+  (Next 15 hit this on 22 Oct 2026, so the site moved to Next 16). Run `npx opennextjs-cloudflare build` if a deploy fails.
 - Don't delete data without the owner's OK. Hidden listings use status `hidden`.
 
 ## Never
