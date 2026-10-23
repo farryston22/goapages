@@ -45,7 +45,7 @@ const G = {
     "printing-graphic-designing"],
   transport: ["car-rental", "taxi", "courier-cargo-service"],
   professional: ["legal-financial", "mortgages-advisor", "investment", "visa-immigration-citizenship", "travel-agency", "healthcare"],
-  other: ["press-and-media", "services", "sports"],
+  other: ["press-and-media", "social-media", "services", "sports"],
 };
 
 export const KINDS: KindConfig[] = [
