@@ -58,6 +58,7 @@ export function catIcon(slug: string): string {
   if (/decor|paint|beauty|tailor|print|choreo/.test(slug)) return "brush";
   if (/car|taxi|courier|travel/.test(slug)) return "car";
   if (/gift/.test(slug)) return "gift";
+  if (/health|medic|clinic/.test(slug)) return "heart";
   if (/event|venue|tour/.test(slug)) return "cal";
   if (/home|room|sale|let/.test(slug)) return "key";
   return "brief";
