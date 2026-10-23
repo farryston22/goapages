@@ -44,7 +44,7 @@ const G = {
   trades: ["domestic-cleaning", "electrician", "painters", "car-valeting-detailing", "tailor", "it-support", "web-developer",
     "printing-graphic-designing"],
   transport: ["car-rental", "taxi", "courier-cargo-service"],
-  professional: ["legal-financial", "mortgages-advisor", "investment", "visa-immigration-citizenship", "travel-agency"],
+  professional: ["legal-financial", "mortgages-advisor", "investment", "visa-immigration-citizenship", "travel-agency", "healthcare"],
   other: ["press-and-media", "services", "sports"],
 };
 
