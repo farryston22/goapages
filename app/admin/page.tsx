@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { moderateClaim, moderateListing, moderateReview } from "./actions";
 import { currentUser } from "@/lib/supabase/server";
 import { clean, plain } from "@/lib/util";
+import { emailProblem } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
@@ -21,7 +22,7 @@ export default async function Admin() {
   const { sb, user, role } = await currentUser();
   if (!user) redirect("/login?next=/admin");
   if (role !== "admin") return <div className="card empty"><h1>Admins only</h1><p style={{ marginTop: 8 }}>You’re signed in as {user.email}, which isn’t an admin account.</p></div>;
-  const [pl, pr, pc, cPub, cRev, cUsers, hidden] = await Promise.all([
+  const [pl, pr, pc, cPub, cRev, cUsers, hidden, mailIssue] = await Promise.all([
     sb.from("listings").select("id,title,slug,kind,tagline,description,phone,email,website,area,created_at,owner_id").eq("status", "pending").order("created_at"),
     sb.from("reviews").select("id,author_name,rating,body,created_at,listings(title,slug)").eq("status", "pending").order("created_at"),
     sb.from("claim_requests").select("id,note,created_at,user_id,listings(title,slug)").eq("status", "pending").order("created_at"),
@@ -29,6 +30,7 @@ export default async function Admin() {
     sb.from("reviews").select("id", { count: "exact", head: true }).eq("status", "published"),
     sb.from("profiles").select("id", { count: "exact", head: true }),
     sb.from("listings").select("id,title,slug,status").in("status", ["hidden", "rejected"]).order("title").limit(100),
+    emailProblem(),
   ]);
   type R = { id: number; author_name: string | null; rating: number | null; body: string | null; listings: { title: string; slug: string } | null; note?: string | null };
   const listings = pl.data ?? [];
@@ -43,6 +45,7 @@ export default async function Admin() {
   return (
     <>
       <div><h1>Approvals</h1><p style={{ color: "var(--muted)", marginTop: 6 }}>Nothing new goes live until you approve it.</p></div>
+      {mailIssue && <div className="notice bad" role="alert"><b>Emails aren’t going out.</b> {mailIssue}</div>}
       <div className="statgrid">
         <div className="card pad"><b>{listings.length + reviews.length + claims.length}</b><span>waiting for you</span></div>
         <div className="card pad"><b>{cPub.count ?? 0}</b><span>live listings</span></div>
@@ -74,7 +77,7 @@ export default async function Admin() {
               <span style={{ fontWeight: 700 }}>{clean(r.author_name) || "Member"} {r.rating != null ? <span className="stars">★ {r.rating}</span> : <span className="badge soft">no rating</span>} on {r.listings ? <Link href={`/listing/${r.listings.slug}`}>{clean(r.listings.title)}</Link> : "?"}</span>
               <p>{plain(r.body).slice(0, 600)}</p>
             </div>
-            <Btns action={moderateReview} id={r.id} />
+            <Btns action={moderateReview} id={r.id} reason />
           </div>
         ))}
       </section>

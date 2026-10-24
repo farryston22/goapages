@@ -2,7 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { clean } from "@/lib/util";
 
 /**
- * Notification emails (listing approved/rejected, claim approved/rejected), sent with Resend.
+ * Notification emails (listing / review / claim approved or rejected, new review for an owner), sent with Resend.
  * Needs the Cloudflare secret RESEND_API_KEY (Workers → goapages → Settings → Variables and Secrets).
  * Without it nothing is sent and moderation still works. Sender can be overridden with EMAIL_FROM.
  */
@@ -43,9 +43,10 @@ GoaPages &mdash; the UK Goan community directory<br>
 </td></tr></table></td></tr></table></body></html>`;
 }
 
-async function send(to: string, subject: string, html: string, text: string) {
+async function send(to: string, subject: string, html: string, text: string): Promise<boolean> {
   const key = await env("RESEND_API_KEY");
-  if (!key || !to) return;
+  if (!key) { console.error("email not sent: RESEND_API_KEY is not set"); return false; }
+  if (!to) return false;
   const from = (await env("EMAIL_FROM")) || "GoaPages <contact@fnunes.co.uk>";
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -53,9 +54,36 @@ async function send(to: string, subject: string, html: string, text: string) {
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from, to: [to], reply_to: "contact@fnunes.co.uk", subject, html, text }),
     });
-    if (!r.ok) console.error("email send failed", r.status, await r.text());
+    if (!r.ok) { console.error("email send failed", r.status, await r.text()); return false; }
+    return true;
   } catch (e) {
     console.error("email send error", e);
+    return false;
+  }
+}
+
+/** For the admin page: is email set up? Returns null when everything looks fine, otherwise a plain-English problem. */
+export async function emailProblem(): Promise<string | null> {
+  const key = await env("RESEND_API_KEY");
+  if (!key) return "Emails are switched off: the Cloudflare secret RESEND_API_KEY isn’t set on the goapages Worker, so members aren’t told when you approve or reject things.";
+  const from = (await env("EMAIL_FROM")) || "GoaPages <contact@fnunes.co.uk>";
+  const domain = (from.match(/@([^>\s]+)/)?.[1] ?? "").toLowerCase();
+  try {
+    const r = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${key}` } });
+    if (r.status === 401 || r.status === 403) {
+      const body = await r.text();
+      // A "sending access" key can't list domains; that's fine, we just can't check.
+      if (/restricted/i.test(body)) return null;
+      return "Resend rejected the RESEND_API_KEY (it may have been deleted or mistyped). Create a new key in Resend and update the Cloudflare secret.";
+    }
+    if (!r.ok) return null;
+    const j = (await r.json()) as { data?: { name: string; status: string }[] };
+    const d = (j.data ?? []).find((x) => x.name.toLowerCase() === domain);
+    if (!d) return `The sending domain ${domain} isn’t added in Resend, so every email is refused. Add and verify ${domain} in Resend → Domains.`;
+    if (d.status !== "verified") return `The sending domain ${domain} is “${d.status}” in Resend, not verified, so emails are refused. Finish the DNS records in Resend → Domains.`;
+    return null;
+  } catch {
+    return null;
   }
 }
 
@@ -108,4 +136,42 @@ export async function emailClaimRejected(to: string, l: L, reason: string | null
       `If this is your business, just reply to this email with something that shows it (for example, the business email address or a link to its social page) and we’ll take another look.`,
     ],
   }), `Thanks for asking to manage "${t}" on GoaPages. We weren't able to confirm you as the owner this time.${reason ? `\n\nReason: ${reason}` : ""}\n\nIf this is your business, reply to this email with proof and we'll take another look.`);
+}
+
+export async function emailReviewApproved(to: string, l: L) {
+  const t = clean(l.title), url = `${SITE}/listing/${l.slug}#reviews`;
+  await send(to, `Your review of ${t} is live`, layout({
+    heading: "Thanks — your review is live ⭐",
+    paras: [
+      `Your review of <b>${esc(t)}</b> has been approved and is now showing on GoaPages.`,
+      `Reviews like yours help the UK Goan community find great local businesses. Thank you!`,
+    ],
+    button: { href: url, label: "See your review" },
+  }), `Your review of "${t}" has been approved and is now live on GoaPages.\n\nSee it: ${url}`);
+}
+
+export async function emailReviewRejected(to: string, l: L, reason: string | null) {
+  const t = clean(l.title);
+  await send(to, `About your review of ${t}`, layout({
+    heading: "Your review wasn’t approved",
+    paras: [
+      `Thanks for reviewing <b>${esc(t)}</b> on GoaPages. Unfortunately we couldn’t publish it this time.`,
+      ...(reason ? [`<b>Reason:</b> ${esc(reason)}`] : []),
+      `You’re welcome to write a new one, or just reply to this email if you have any questions.`,
+    ],
+    button: { href: `${SITE}/listing/${l.slug}#reviews`, label: "Go to the listing" },
+  }), `Thanks for reviewing "${t}" on GoaPages. Unfortunately we couldn't publish it this time.${reason ? `\n\nReason: ${reason}` : ""}\n\nQuestions? Just reply to this email.`);
+}
+
+export async function emailNewReviewForOwner(to: string, l: L, rating: number | null) {
+  const t = clean(l.title), url = `${SITE}/listing/${l.slug}#reviews`;
+  const stars = rating ? `${"★".repeat(Math.round(rating))}${"☆".repeat(5 - Math.round(rating))} ` : "";
+  await send(to, `New review for ${t}`, layout({
+    heading: "You’ve got a new review",
+    paras: [
+      `Someone just left a ${stars}review for <b>${esc(t)}</b> on GoaPages.`,
+      `Have a look, and share your listing to collect more.`,
+    ],
+    button: { href: url, label: "Read the review" },
+  }), `Someone left a new ${stars}review for "${t}" on GoaPages.\n\nRead it: ${url}`);
 }

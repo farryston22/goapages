@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/supabase/server";
-import { emailClaimApproved, emailClaimRejected, emailListingApproved, emailListingRejected } from "@/lib/email";
+import { emailClaimApproved, emailClaimRejected, emailListingApproved, emailListingRejected, emailNewReviewForOwner, emailReviewApproved, emailReviewRejected } from "@/lib/email";
 
 async function admin() {
   const ctx = await currentUser();
@@ -36,10 +36,27 @@ export async function moderateListing(form: FormData) {
 }
 
 export async function moderateReview(form: FormData) {
-  const { sb } = await admin();
+  const { sb, user } = await admin();
   const status = String(form.get("status"));
   if (!["published", "rejected"].includes(status)) return;
-  await sb.from("reviews").update({ status }).eq("id", Number(form.get("id")));
+  const id = Number(form.get("id"));
+  const reason = String(form.get("reason") ?? "").trim().slice(0, 500) || null;
+  const { data: r } = await sb.from("reviews").select("status,author_id,rating,listing_id,listings(title,slug,owner_id)").eq("id", id).maybeSingle();
+  await sb.from("reviews").update({ status }).eq("id", id);
+  if (r?.listing_id) await sb.from("moderation_log").insert({ listing_id: r.listing_id, action: `review_${status}`, actor: user!.email, reason });
+  const l = r?.listings as unknown as { title: string; slug: string; owner_id: string | null } | null;
+  // Tell the reviewer (and, when it goes live, the listing's owner) only when a pending review is decided.
+  if (r && l && r.status === "pending") {
+    if (r.author_id && r.author_id !== user!.id) {
+      const to = await emailOf(sb, r.author_id);
+      if (to && status === "published") await emailReviewApproved(to, l);
+      if (to && status === "rejected") await emailReviewRejected(to, l, reason);
+    }
+    if (status === "published" && l.owner_id && l.owner_id !== r.author_id && l.owner_id !== user!.id) {
+      const owner = await emailOf(sb, l.owner_id);
+      if (owner) await emailNewReviewForOwner(owner, l, r.rating as number | null);
+    }
+  }
   revalidatePath("/admin");
 }
 

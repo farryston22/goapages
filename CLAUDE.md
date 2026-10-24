@@ -41,9 +41,12 @@ yourself unless he asks.
 - Put passwords or secret keys in the repo.
 
 ## Notification emails
-- `lib/email.ts` sends (via Resend) when an admin decides something a member submitted: listing approved / rejected
-  and claim approved / rejected. Called from `app/admin/actions.ts`; only fires when the item was `pending`. The
-  reject buttons have an optional "Reason" box that goes into the email and `moderation_log`.
+- `lib/email.ts` sends (via Resend) when an admin decides something a member submitted: listing, review and claim
+  approved / rejected, plus a "new review" email to the listing owner when a review goes live. Called from
+  `app/admin/actions.ts`; only fires when the item was `pending`. The reject buttons have an optional "Reason" box
+  that goes into the email and `moderation_log` (review decisions log as `review_published` / `review_rejected`).
+- `/admin` shows a red "Emails aren't going out" banner (`emailProblem()`) when the key is missing, Resend refuses
+  it, or the sender domain isn't verified in Resend. Send failures are logged in Workers logs ("email send failed").
 - Needs the Cloudflare secret `RESEND_API_KEY`; sender defaults to `GoaPages <contact@fnunes.co.uk>` (override with
   `EMAIL_FROM`). Without the key nothing is sent and moderation still works. Sign-in emails are Supabase's own
   (templates in `supabase/email-templates`; links use `token_hash`, not `ConfirmationURL`).
