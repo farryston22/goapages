@@ -147,6 +147,18 @@ p { margin: 0; }
 .adstrip .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; }
 .adstrip h3 { font-size: 20px; margin-top: 2px; }
 
+/* video ad slots (components/AdSlot.tsx): 4:1 video on desktop, 1:1 on phones */
+.adslot { display: flex; flex-direction: column; gap: 8px; }
+.adslot-k { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--muted); }
+.adslot-k span:last-child { letter-spacing: 0; font-weight: 500; }
+.adslot-media { display: block; border-radius: var(--radius); overflow: hidden; background: var(--navy); box-shadow: 0 12px 30px -14px rgba(36,44,65,.55); transition: transform .2s; }
+.adslot-media:hover { transform: translateY(-2px); }
+.adslot-media video { display: block; width: 100%; height: auto; }
+.adslot-media .wd { aspect-ratio: 4 / 1; }
+.adslot-media .sq { aspect-ratio: 1 / 1; display: none; }
+@media (max-width: 640px) { .adslot-media .wd { display: none; } .adslot-media .sq { display: block; } }
+@media (prefers-reduced-motion: reduce) { .adslot-media { transition: none; } }
+
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
 @media (max-width: 960px) { .split { grid-template-columns: minmax(0, 1fr); } }
 .soon { background: var(--navy); color: #fff; border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 10px; }

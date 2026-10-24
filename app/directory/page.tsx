@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
+import AdSlot from "@/components/AdSlot";
 import { supabaseServer } from "@/lib/supabase/server";
 import { categories, categoryCounts, catNames } from "@/lib/data";
 import { LIST_FIELDS, clean, type Listing } from "@/lib/util";
@@ -77,6 +78,8 @@ export default async function Directory({ searchParams }: { searchParams: SP }) 
           <Link href="/post" className="btn btn-yellow" style={{ marginTop: 14 }}>Add a listing</Link>
         </div>
       )}
+
+      <AdSlot placement="directory_banner" />
 
       {pages > 1 && (
         <nav className="pager" aria-label="Pages">

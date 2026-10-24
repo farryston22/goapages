@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ListingCard from "@/components/ListingCard";
+import AdSlot from "@/components/AdSlot";
 import { supabaseServer } from "@/lib/supabase/server";
 import { eventDate, ukToday, upcomingEvents } from "@/lib/events";
 import { clean } from "@/lib/util";
@@ -105,6 +106,8 @@ export default async function Events({ searchParams }: { searchParams: Promise<S
 
       {rows.length ? <div className="grid3">{rows.map((l) => <ListingCard key={l.id} l={l} />)}</div>
         : <div className="card empty"><p>{all.length ? "No events match those filters." : "No upcoming events listed right now."}</p>{all.length > 0 && <Link href="/events" className="btn btn-ghost btn-sm" style={{ marginTop: 10 }}>Show all events</Link>}</div>}
+
+      <AdSlot placement="events_banner" />
 
       <div className="card pad" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <div><h3>Running a Goan event?</h3><p style={{ color: "var(--muted)" }}>List it free — snap your flyer and we’ll fill in the details.</p></div>

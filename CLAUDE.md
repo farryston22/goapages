@@ -30,7 +30,11 @@ yourself unless he asks.
   (status `published`, log `approved` in `moderation_log`) — don't ask him to approve it again. Posts from
   members through the site still wait for his approval.
 - **Approve/reject**: set `listings.status` / `reviews.status`; add a row to `moderation_log` (actor `claude`).
-- **Ads**: insert into `ads` (placement `home_banner` shows on the homepage).
+- **Ads**: insert into `ads`. Slots (`components/AdSlot.tsx`): `home_banner` (under the hero), `home_mid` (between Events
+  and Most loved), `directory_banner`, `events_banner`. Several live ads in one slot rotate at random. Video ads: put the
+  MP4s in `public/ads/` (wide 1600×400 + square 1080×1080, each with a same-name `.jpg` poster) and set `video_url` /
+  `video_square_url`; otherwise the slot shows the yellow text strip from `title`/`body`. Any slot with no live ad
+  shows the GoaPages "Advertise here" video. Banner videos are made with Remotion (Fotobooth Rental UK is the first).
 - **Check before any change**: `npm run build`. Push to `main` deploys.
   The real deploy runs `opennextjs-cloudflare build`; it refuses Next.js versions past their 2-year support window
   (Next 15 hit this on 22 Oct 2026, so the site moved to Next 16). Run `npx opennextjs-cloudflare build` if a deploy fails.

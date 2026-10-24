@@ -3,6 +3,7 @@ import Icon, { catIcon } from "@/components/Icon";
 import ListingCard from "@/components/ListingCard";
 import MiniList from "@/components/MiniList";
 import AskBox from "@/components/AskBox";
+import AdSlot from "@/components/AdSlot";
 import { upcomingEvents } from "@/lib/events";
 import { FollowStrip } from "@/components/Follow";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -11,12 +12,10 @@ import { LIST_FIELDS, clean, type Listing } from "@/lib/util";
 
 export const dynamic = "force-dynamic";
 
-type Ad = { id: number; placement: string; advertiser: string | null; title: string; body: string | null; link_url: string | null; image_url: string | null };
-
 export default async function Home() {
   const sb = await supabaseServer();
   const live = `expires_at.is.null,expires_at.gt.${new Date().toISOString()}`;
-  const [loved, fresh, events, cats, counts, names, totals, ads, items, homes] = await Promise.all([
+  const [loved, fresh, events, cats, counts, names, totals, items, homes] = await Promise.all([
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("review_count", { ascending: false }).order("avg_rating", { ascending: false }).limit(6),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "business").order("created_at", { ascending: false }).limit(6),
     upcomingEvents(sb, 3),
@@ -24,12 +23,10 @@ export default async function Home() {
     categoryCounts(),
     catNames(),
     sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "published"),
-    sb.from("ads").select("*").in("placement", ["home_banner", "home_card"]),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").eq("kind", "item").or(live).order("created_at", { ascending: false }).limit(2),
     sb.from("listings").select(LIST_FIELDS).eq("status", "published").in("kind", ["room", "property"]).or(live).order("created_at", { ascending: false }).limit(2),
   ]);
   const topCats = cats.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0)).slice(0, 6);
-  const banner = ((ads.data ?? []) as Ad[]).find((a) => a.placement === "home_banner");
   const L = (x: { data: unknown }) => (x.data ?? []) as Listing[];
 
   return (
@@ -48,16 +45,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {banner ? (
-        <aside className="adstrip" aria-label="Sponsored">
-          <div>
-            <div className="k">SPONSORED{banner.advertiser ? ` · ${banner.advertiser}` : ""}</div>
-            <h3>{banner.title}</h3>
-            {banner.body && <p>{banner.body}</p>}
-          </div>
-          {banner.link_url && <a className="btn btn-primary" href={banner.link_url} rel="sponsored noopener" target="_blank">Find out more</a>}
-        </aside>
-      ) : null}
+      <AdSlot placement="home_banner" />
 
       <section aria-labelledby="cats-h">
         <div className="sec-head">
@@ -80,6 +68,8 @@ export default async function Home() {
           <div className="grid3">{events.map((l) => <ListingCard key={l.id} l={l} />)}</div>
         </section>
       )}
+
+      <AdSlot placement="home_mid" />
 
       <section aria-labelledby="loved-h">
         <div className="sec-head">
