@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/supabase/server";
 import StatsView, { RangeTabs, type Stats } from "@/components/StatsView";
+import AiQuestions, { type AiStats } from "@/components/AiQuestions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Site stats", robots: { index: false } };
@@ -13,7 +14,7 @@ export default async function SiteStats({ searchParams }: { searchParams: Promis
   const { sb, user, role } = await currentUser();
   if (!user) redirect("/login?next=/admin/stats");
   if (role !== "admin") return <div className="card empty"><h1>Admins only</h1></div>;
-  const { data, error } = await sb.rpc("site_stats", { days });
+  const [{ data, error }, ai] = await Promise.all([sb.rpc("site_stats", { days }), sb.rpc("ai_query_stats", { days })]);
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
@@ -22,6 +23,9 @@ export default async function SiteStats({ searchParams }: { searchParams: Promis
       </div>
       <RangeTabs days={days} href={(n) => `/admin/stats?days=${n}`} />
       {error || !data ? <div className="notice bad">Couldn’t load the stats: {error?.message ?? "no data"}</div> : <StatsView s={data as Stats} />}
+      {ai.error || !ai.data
+        ? <div className="notice bad">Couldn’t load the AI questions: {ai.error?.message ?? "no data"}</div>
+        : <AiQuestions s={ai.data as AiStats} days={days} />}
     </>
   );
 }

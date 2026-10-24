@@ -65,6 +65,11 @@ yourself unless he asks.
   with the matches plus web search (max 2 searches per question).
 - Needs the Cloudflare secret `ANTHROPIC_API_KEY` (Workers → goapages → Settings → Variables and Secrets).
   Without it, the box still works as a plain search. Model defaults to `claude-haiku-5-5` (override with `AI_MODEL`).
+- Every question is saved (after the reply, via `after()`) with `log_ai_query()` into `ai_queries`: outcome
+  `answered` / `fallback` (no key) / `error` (API failed — visitor sees "assistant is busy"), number of listing
+  matches, city/device and the same cookie-free visitor hash as `/api/track` (`lib/visitor.ts`). Admin-only; rows
+  older than 90 days are deleted. Shown on `/admin/stats` ("What people asked", `components/AiQuestions.tsx`,
+  `ai_query_stats()`), with a red notice when questions failed. 24 Oct 2026 outage: the API key had an expiry date.
 
 ## Add a listing (one smart form)
 - `/post` with no `kind` shows the type picker + auto-fill box; `/post?kind=<kind>` shows the form for that type.

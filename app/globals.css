@@ -420,3 +420,9 @@ fieldset.catdep[disabled] { display: none; }
 .st-table th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .st-table td { padding: 10px; border-bottom: 1px solid var(--line-2); font-variant-numeric: tabular-nums; }
 .st-table td:first-child { font-weight: 600; }
+
+/* AI questions on /admin/stats (components/AiQuestions.tsx) */
+.ai-tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-right: 4px; background: #E3F4EA; color: #1E6B3E; }
+.ai-tag.fallback { background: #FFF8DB; color: #7A5B00; }
+.ai-tag.error { background: #FBE9E7; color: #A3302A; }
+.ai-tag.none { background: var(--line-2, #EEF1F6); color: var(--navy, #242C41); }

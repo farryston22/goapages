@@ -1,6 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { supabaseServer } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_KEY, SUPABASE_URL, supabaseServer } from "@/lib/supabase/server";
+import { visitorInfo } from "@/lib/visitor";
 import { searchListings } from "@/lib/search";
 import { clean, plain, socialsList } from "@/lib/util";
 
@@ -47,7 +49,25 @@ async function apiKey() {
   return process.env.ANTHROPIC_API_KEY;
 }
 
+// Saves each question to ai_queries (admins see them on /admin/stats). Runs after the reply is sent.
+// Cookie-free like /api/track: no IP stored, visitor is a daily-salted hash. Kept 90 days.
+function logQuery(req: NextRequest, question: string, outcome: "answered" | "fallback" | "error", results: number, started: number) {
+  after(async () => {
+    try {
+      const v = await visitorInfo(req);
+      if (v.bot) return;
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+      const { error } = await sb.rpc("log_ai_query", { e: {
+        question, outcome, results, ms: Date.now() - started,
+        country: v.country, city: v.city, device: v.device, visitor: v.visitor,
+      } });
+      if (error) console.error("log_ai_query failed", error.message);
+    } catch (e) { console.error("log_ai_query failed", e); }
+  });
+}
+
 export async function POST(req: NextRequest) {
+  const started = Date.now();
   let body: { q?: string; history?: Msg[] };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "bad request" }, { status: 400 }); }
   const q = String(body.q ?? "").trim().slice(0, 500);
@@ -70,13 +90,17 @@ export async function POST(req: NextRequest) {
 
   const key = await apiKey();
   if (!key) {
+    logQuery(req, q, "fallback", hits.length, started);
     return NextResponse.json({
       answer: hits.length ? "Here are the best matches on GoaPages for that:" : "I couldn’t find a match on GoaPages for that yet. Try the directory, or a simpler word like “caterer” or “DJ”.",
       listings: cards.slice(0, 6), ai: false,
     });
   }
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const busy = () => NextResponse.json({ answer: "Sorry, the assistant is busy right now. Here are the closest matches on GoaPages:", listings: cards.slice(0, 6), ai: false });
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
@@ -86,10 +110,16 @@ export async function POST(req: NextRequest) {
       messages: [...history, { role: "user", content: q }],
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2, user_location: { type: "approximate", country: "GB", timezone: "Europe/London" } }],
     }),
-  });
+    });
+  } catch (e) {
+    console.error("anthropic fetch failed", e);
+    logQuery(req, q, "error", hits.length, started);
+    return busy();
+  }
   if (!res.ok) {
     console.error("anthropic error", res.status, (await res.text()).slice(0, 500));
-    return NextResponse.json({ answer: "Sorry, the assistant is busy right now. Here are the closest matches on GoaPages:", listings: cards.slice(0, 6), ai: false });
+    logQuery(req, q, "error", hits.length, started);
+    return busy();
   }
   const data = (await res.json()) as { content: { type: string; text?: string }[] };
   const answer = data.content.filter((c) => c.type === "text").map((c) => c.text).join("").trim();
@@ -98,5 +128,6 @@ export async function POST(req: NextRequest) {
     .filter((c) => answer.includes(`/listing/${c.slug}`))
     .sort((a, b) => answer.indexOf(`/listing/${a.slug}`) - answer.indexOf(`/listing/${b.slug}`))
     .slice(0, 4);
+  logQuery(req, q, "answered", hits.length, started);
   return NextResponse.json({ answer, listings: mentioned.length ? mentioned : cards.slice(0, 3), ai: true });
 }
