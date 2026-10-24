@@ -44,7 +44,7 @@ export default async function Admin() {
   }
   return (
     <>
-      <div><h1>Approvals</h1><p style={{ color: "var(--muted)", marginTop: 6 }}>Nothing new goes live until you approve it.</p></div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}><div><h1>Approvals</h1><p style={{ color: "var(--muted)", marginTop: 6 }}>Nothing new goes live until you approve it.</p></div><Link href="/admin/stats" className="btn btn-yellow">Site stats →</Link></div>
       {mailIssue && <div className="notice bad" role="alert"><b>Emails aren’t going out.</b> {mailIssue}</div>}
       <div className="statgrid">
         <div className="card pad"><b>{listings.length + reviews.length + claims.length}</b><span>waiting for you</span></div>

@@ -43,6 +43,7 @@ export default async function My({ searchParams }: { searchParams: Promise<{ pos
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><span className={"badge " + (badge[l.status] ?? "soft")}>{l.status.toUpperCase()}</span>{l.review_count > 0 && <span className="badge soft">{l.review_count} reviews</span>}</div>
             </div>
             <div className="acts">
+              <Link className="btn btn-ghost btn-sm" href={`/my/stats?id=${l.id}`}><Icon name="chart" size={16} />Stats</Link>
               <Link className="btn btn-ghost btn-sm" href={`/post?id=${l.id}`}>Edit</Link>
               {l.status === "published" && (
                 <form action={setListingStatus}><input type="hidden" name="id" value={l.id} /><input type="hidden" name="status" value="hidden" /><button className="btn btn-ghost btn-sm" type="submit">Hide</button></form>

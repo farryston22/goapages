@@ -1,4 +1,5 @@
 const P: Record<string, string> = {
+  chart: "M3 20h18M6 16v-5M11 16V6M16 16v-8M21 16v-3",
   home: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
   dir: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
   search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3",

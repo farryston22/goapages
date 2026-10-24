@@ -35,6 +35,11 @@ yourself unless he asks.
   MP4s in `public/ads/` (wide 1600×400 + square 1080×1080, each with a same-name `.jpg` poster) and set `video_url` /
   `video_square_url`; otherwise the slot shows the yellow text strip from `title`/`body`. Any slot with no live ad
   shows the GoaPages "Advertise here" video. Banner videos are made with Remotion (Fotobooth Rental UK is the first).
+- **Visitor stats**: `components/Tracker.tsx` (in layout) → `/api/track` → `track_event()` into `analytics_events`.
+  Cookie-free; no IPs stored (visitor = daily-salted hash; optional Cloudflare secret `STATS_SALT`). Reports:
+  `/admin/stats` (`site_stats()`, admins) and `/my/stats?id=` (`listing_stats()`, owner or admin), drawn by
+  `components/StatsView.tsx`. Tracks page views, source, country/city (Cloudflare), device, contact clicks on listing
+  pages, and ad views/clicks (`data-ad-id` on ad slots). Bots and `/admin` are skipped.
 - **Check before any change**: `npm run build`. Push to `main` deploys.
   The real deploy runs `opennextjs-cloudflare build`; it refuses Next.js versions past their 2-year support window
   (Next 15 hit this on 22 Oct 2026, so the site moved to Next 16). Run `npx opennextjs-cloudflare build` if a deploy fails.

@@ -26,13 +26,13 @@ const GROUPS: { title: string; items: Item[] }[] = [
 ];
 
 function on(path: string, href: string) {
-  return href === "/" ? path === "/" : path === href || path.startsWith(href + "/");
+  return href === "/" || href === "/admin" ? path === href : path === href || path.startsWith(href + "/");
 }
 
 export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const path = usePathname() || "/";
   const groups = isAdmin
-    ? [...GROUPS, { title: "Admin", items: [{ href: "/admin", label: "Approvals", icon: "shield" }] }]
+    ? [...GROUPS, { title: "Admin", items: [{ href: "/admin", label: "Approvals", icon: "shield" }, { href: "/admin/stats", label: "Site stats", icon: "chart" }] }]
     : GROUPS;
   return (
     <aside className="side" aria-label="Main">
@@ -90,7 +90,7 @@ export function TabBar({ isAdmin = false, signedIn = false }: { isAdmin?: boolea
       { href: "/post", label: "Add a listing", icon: "plus" },
       signedIn ? { href: "/my", label: "My listings", icon: "user" } : { href: "/login", label: "Sign in", icon: "user" },
       { href: "/advertise", label: "Advertise", icon: "megaphone" },
-      ...(isAdmin ? [{ href: "/admin", label: "Approvals", icon: "shield" }] : []),
+      ...(isAdmin ? [{ href: "/admin", label: "Approvals", icon: "shield" }, { href: "/admin/stats", label: "Site stats", icon: "chart" }] : []),
       { href: "/about", label: "About & contact", icon: "mail" },
     ] },
   ];
