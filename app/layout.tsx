@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { Sidebar, TabBar } from "@/components/Nav";
+import AdTicker from "@/components/AdTicker";
 import Icon from "@/components/Icon";
 import AskLink from "@/components/AskLink";
 import { SocialIcons } from "@/components/Follow";
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <Link href="/post" className="btn btn-yellow btn-sm"><Icon name="plus" size={16} />Add listing</Link>
               </div>
             </header>
+            <AdTicker />
             <main id="main" className="content">{children}</main>
             <footer className="foot">
               <span>© {new Date().getFullYear()} GoaPages UK</span>
