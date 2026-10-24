@@ -44,7 +44,7 @@ export default async function AdSlot({ placement, house = true }: { placement: s
     return (
       <aside className="adslot" aria-label="Sponsored">
         <div className="adslot-k"><span>SPONSORED</span><span>{ad.advertiser}</span></div>
-        <a href={href} className="adslot-media" rel="sponsored noopener" target="_blank" aria-label={label}>
+        <a href={href} className="adslot-media" aria-label={label} {...(href.startsWith("/") ? {} : { rel: "sponsored noopener", target: "_blank" })}>
           <video className="wd" src={ad.video_url} poster={poster(ad.video_url)} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
           <video className="sq" src={sq} poster={poster(sq)} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
         </a>
@@ -59,7 +59,7 @@ export default async function AdSlot({ placement, house = true }: { placement: s
         <h3>{ad.title}</h3>
         {ad.body && <p>{ad.body}</p>}
       </div>
-      {ad.link_url && <a className="btn btn-primary" href={ad.link_url} rel="sponsored noopener" target="_blank">Find out more</a>}
+      {ad.link_url && <a className="btn btn-primary" href={ad.link_url} {...(ad.link_url.startsWith("/") ? {} : { rel: "sponsored noopener", target: "_blank" })}>Find out more</a>}
     </aside>
   );
 }
