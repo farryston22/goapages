@@ -108,6 +108,7 @@ export default async function ListingPage({ params, searchParams }: P) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
               {l.review_count > 0 && <span className="stars">★ {Number(l.avg_rating ?? 0).toFixed(1)} <span style={{ color: "var(--muted)", fontWeight: 500 }}>· {l.review_count} reviews</span></span>}
               {cats.map((c) => <Link key={c.slug} href={`/directory?cat=${c.slug}`} className="badge soft" style={{ textDecoration: "none" }}>{clean(c.name)}</Link>)}
+              {l.featured_until && new Date(l.featured_until) > new Date() && <span className="badge"><Icon name="star" size={12} />Featured</span>}
               {l.claimed && <span className="badge ok"><Icon name="check" size={12} />Owner-managed</span>}
               {l.price_pence != null && !isBiz && <span className="badge navy">{price(l.price_pence, l.price_period)}</span>}
             </div>

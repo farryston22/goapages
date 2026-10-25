@@ -34,6 +34,14 @@ export default async function Directory({ searchParams }: { searchParams: SP }) 
   else if (sort === "az") q = q.order("title");
   else if (sort === "rating") q = q.order("avg_rating", { ascending: false, nullsFirst: false }).order("review_count", { ascending: false });
   else q = q.order("review_count", { ascending: false }).order("title");
+  // Featured (paid) listings: shown first on page 1, above the normal list, and not repeated in it.
+  const nowIso = new Date().toISOString();
+  let fq = sb.from("listings")
+    .select(current ? LIST_FIELDS + ",listing_categories!inner(category_id)" : LIST_FIELDS)
+    .eq("status", "published").eq("kind", "business").gt("featured_until", nowIso).order("featured_until", { ascending: false }).limit(6);
+  if (current) fq = fq.eq("listing_categories.category_id", current.id);
+  const featured = p === 1 ? ((await fq).data ?? []) as unknown as Listing[] : [];
+  if (featured.length) q = q.not("id", "in", `(${featured.map((f) => f.id).join(",")})`);
   const { data, count } = await q.range((p - 1) * PER, p * PER - 1);
   const rows = (data ?? []) as unknown as Listing[];
   const pages = Math.max(1, Math.ceil((count ?? 0) / PER));
@@ -68,6 +76,13 @@ export default async function Directory({ searchParams }: { searchParams: SP }) 
           <Link key={k} href={link({ sort: k, page: undefined })} className={"chip light" + (sort === k ? " on" : "")}>{v}</Link>
         ))}
       </div>
+
+      {featured.length > 0 && (
+        <section aria-labelledby="feat-h" className="featured-row">
+          <div className="sec-head"><div><h2 id="feat-h">Featured</h2><p>{current ? `Recommended ${clean(current.name).toLowerCase()}` : "Recommended Goan businesses"}</p></div></div>
+          <div className="grid3">{featured.map((l) => <ListingCard key={l.id} l={l} cat={current ? undefined : names.get(l.id)} />)}</div>
+        </section>
+      )}
 
       {rows.length ? (
         <div className="grid3">{rows.map((l) => <ListingCard key={l.id} l={l} cat={current ? undefined : names.get(l.id)} />)}</div>

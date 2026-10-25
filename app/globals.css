@@ -426,3 +426,8 @@ fieldset.catdep[disabled] { display: none; }
 .ai-tag.fallback { background: #FFF8DB; color: #7A5B00; }
 .ai-tag.error { background: #FBE9E7; color: #A3302A; }
 .ai-tag.none { background: var(--line-2, #EEF1F6); color: var(--navy, #242C41); }
+
+/* Featured (paid) listings row at the top of the directory */
+.featured-row { background: var(--navy); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.featured-row .sec-head h2 { color: #fff; }
+.featured-row .sec-head p { color: #CDD3E2; }
