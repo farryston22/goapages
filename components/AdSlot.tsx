@@ -16,8 +16,8 @@ function HouseAd() {
     <aside className="adslot house" aria-label="Advertise with GoaPages">
       <div className="adslot-k"><span>ADVERTISE WITH US</span><span>Banner slot available</span></div>
       <Link href="/advertise" className="adslot-media" aria-label={label}>
-        <video className="wd" src="/ads/goapages-advertise-wide.mp4" poster="/ads/goapages-advertise-wide.jpg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
-        <video className="sq" src="/ads/goapages-advertise-square.mp4" poster="/ads/goapages-advertise-square.jpg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
+        <video className="wd" src="/ads/goapages-advertise-wide.mp4" poster="/ads/goapages-advertise-wide.jpg" autoPlay muted loop playsInline disablePictureInPicture disableRemotePlayback preload="metadata" aria-hidden="true" tabIndex={-1} />
+        <video className="sq" src="/ads/goapages-advertise-square.mp4" poster="/ads/goapages-advertise-square.jpg" autoPlay muted loop playsInline disablePictureInPicture disableRemotePlayback preload="metadata" aria-hidden="true" tabIndex={-1} />
       </Link>
     </aside>
   );
@@ -45,8 +45,8 @@ export default async function AdSlot({ placement, house = true }: { placement: s
       <aside className="adslot" aria-label="Sponsored" data-ad-id={ad.id}>
         <div className="adslot-k"><span>SPONSORED</span><span>{ad.advertiser}</span></div>
         <a href={href} className="adslot-media" aria-label={label} {...(href.startsWith("/") ? {} : { rel: "sponsored noopener", target: "_blank" })}>
-          <video className="wd" src={ad.video_url} poster={poster(ad.video_url)} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
-          <video className="sq" src={sq} poster={poster(sq)} autoPlay muted loop playsInline preload="metadata" aria-hidden="true" />
+          <video className="wd" src={ad.video_url} poster={poster(ad.video_url)} autoPlay muted loop playsInline disablePictureInPicture disableRemotePlayback preload="metadata" aria-hidden="true" tabIndex={-1} />
+          <video className="sq" src={sq} poster={poster(sq)} autoPlay muted loop playsInline disablePictureInPicture disableRemotePlayback preload="metadata" aria-hidden="true" tabIndex={-1} />
         </a>
       </aside>
     );

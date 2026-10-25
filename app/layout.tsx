@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar, TabBar } from "@/components/Nav";
 import AdTicker from "@/components/AdTicker";
 import Tracker from "@/components/Tracker";
+import AdVideoKick from "@/components/AdVideoKick";
 import Icon from "@/components/Icon";
 import AskLink from "@/components/AskLink";
 import { SocialIcons } from "@/components/Follow";
@@ -70,6 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </div>
         <TabBar isAdmin={isAdmin} signedIn={signedIn} />
         <Tracker />
+        <AdVideoKick />
       </body>
     </html>
   );

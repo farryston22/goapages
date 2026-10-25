@@ -153,7 +153,10 @@ p { margin: 0; }
 .adslot-k span:last-child { letter-spacing: 0; font-weight: 500; }
 .adslot-media { display: block; border-radius: var(--radius); overflow: hidden; background: var(--navy); box-shadow: 0 12px 30px -14px rgba(36,44,65,.55); transition: transform .2s; }
 .adslot-media:hover { transform: translateY(-2px); }
-.adslot-media video { display: block; width: 100%; height: auto; }
+.adslot-media video { display: block; width: 100%; height: auto; pointer-events: none; } /* taps go to the ad link */
+/* never show the phone's own play button over an ad (Low Power Mode blocks autoplay); AdVideoKick starts it on first touch */
+.adslot-media video::-webkit-media-controls, .adslot-media video::-webkit-media-controls-start-playback-button,
+.adslot-media video::-webkit-media-controls-overlay-play-button, .adslot-media video::-webkit-media-controls-panel { display: none !important; -webkit-appearance: none; opacity: 0; }
 .adslot-media .wd { aspect-ratio: 4 / 1; }
 .adslot-media .sq { aspect-ratio: 1 / 1; display: none; }
 @media (max-width: 640px) { .adslot-media .wd { display: none; } .adslot-media .sq { display: block; } }
