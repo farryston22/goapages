@@ -35,6 +35,9 @@ yourself unless he asks.
   MP4s in `public/ads/` (wide 1600×400 + square 1080×1080, each with a same-name `.jpg` poster) and set `video_url` /
   `video_square_url`; otherwise the slot shows the yellow text strip from `title`/`body`. Any slot with no live ad
   shows the GoaPages "Advertise here" video. Banner videos are made with Remotion (Fotobooth Rental UK is the first).
+- **Featured listings** (paid): set `listings.featured_until` to the paid end date. While it's in the future the listing
+  shows first in the directory (navy "Featured" row, page 1, its category or All) and gets a Featured badge on cards
+  and its page; it switches off by itself after that date. Sheene Mill (first paid advertiser, Oct 2026) is featured.
 - **Visitor stats**: `components/Tracker.tsx` (in layout) → `/api/track` → `track_event()` into `analytics_events`.
   Cookie-free; no IPs stored (visitor = daily-salted hash; optional Cloudflare secret `STATS_SALT`). Reports:
   `/admin/stats` (`site_stats()`, admins) and `/my/stats?id=` (`listing_stats()`, owner or admin), drawn by
