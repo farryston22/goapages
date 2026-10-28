@@ -53,6 +53,7 @@ export function catIcon(slug: string): string {
   if (/photo/.test(slug)) return "camera";
   if (/video|led|screen/.test(slug)) return "video";
   if (/music|dj|band|choir|sound/.test(slug)) return "music";
+  if (/perform|danc/.test(slug)) return "star";
   if (/emcee|press|media/.test(slug)) return "mic";
   if (/cake|baker/.test(slug)) return "cake";
   if (/cater|food|restaurant|cafe|fish|bar/.test(slug)) return "food";

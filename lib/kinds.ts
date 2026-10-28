@@ -40,7 +40,7 @@ const G = {
   foodPlaces: ["restaurant", "cafe", "food-dining"],
   shops: ["bakers", "cakes", "caterers", "fish-monger", "gifts-favours", "books-magazine"],
   eventServices: ["bar-services", "beauty-hair-makeup", "choirs", "choreographer", "decorators", "emcee", "event-planner",
-    "light-sound", "music-dj", "music-bands", "photographers", "videographer"],
+    "light-sound", "music-dj", "music-bands", "musicians", "performers", "photographers", "videographer"],
   trades: ["domestic-cleaning", "electrician", "painters", "car-valeting-detailing", "tailor", "it-support", "web-developer",
     "printing-graphic-designing"],
   transport: ["car-rental", "taxi", "courier-cargo-service"],
